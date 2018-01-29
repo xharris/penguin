@@ -64,8 +64,40 @@ function extname(str)
 	end
 end
 
-function bitmask4(t, x, y)
+function bitmask4(t, tile_val, x, y)
+	function checkTile(x2, y2)
+		if x2 > 0 and y2 > 0 and y2 <= #t and x2 <= #t[y2] and t[y2][x2] == tile_val then
+			return 1
+		end
+		return 0
+	end
 
+	local result = 
+		   1*checkTile(x,y-1) + 
+		   2*checkTile(x-1,y) +
+		   4*checkTile(x+1,y) +
+		   8*checkTile(x,y+1)
+		   
+	return result
+end
+
+function bitmask8(t, tile_val, x, y)
+	function checkTile(x, y)
+		if x > 0 and y > 0 and x <= #t and y <= #t[x] and t[x][y] == tile_val then
+			return 1
+		end
+		return 0
+	end
+
+	local result = 1*checkTile(x-1,y-1) + 
+		   2*checkTile(x-1,y) +
+		   4*checkTile(x+1,y+1) +
+		   8*checkTile(x-1,y) +
+		   16*checkTile(x+1,y) +
+		   32*checkTile(x+1,y-1) +
+		   64*checkTile(x,y+1) +
+		   128*checkTile(x+1,y+1)
+	return result
 end
 
 --[[
@@ -140,6 +172,13 @@ function table.toNumber(t)
 	return t
 end
 
+function table.toString(t)
+	for i, val in ipairs(t) do
+		t[i] = tostring(val)
+	end
+	return t
+end
+
 function table.len(t)
 	local count = 0
 	for _ in pairs(t) do count = count + 1 end
@@ -152,6 +191,16 @@ function table.forEach(t, func)
 	
 	for i=1,table_len do
 		func(i,t[i])
+	end
+end
+
+function table.random(t)
+	local len = table.len(t)
+	local x = randRange(1, len)
+	local i = 1
+	for key,val in pairs(t) do
+		if i == x then return val end
+		i = i + 1
 	end
 end
 

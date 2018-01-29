@@ -33,22 +33,26 @@ function Penguin:init()
 
 	self.gravity = 30
 	self.can_jump = true
-	self.color = Draw.randomColor()
+	-- random shade of blue
+	Debug.log(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"}))
+	self.color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"}))
 	self.sprite_yoffset = -16
 	self.sprite_xoffset = -16
 
 	self:addShape("main", "rectangle", {0, 0, 32, 32})		-- rectangle of whole players body
 	self:addShape("jump_box", "rectangle", {4, 30, 24, 2})	-- rectangle at players feet
 	self:setMainShape("main")
+
+	--self.show_debug = true
 end
 
 function Penguin:update(dt)
-	local past_wall = false
-	if wall and self.x > wall.x then
-		past_wall = true
+	local behind_wall = true
+	if not wall or self.x > wall.x then
+		behind_wall = false
 	end
 	self.onCollision["main"] = function(other, sep_vector)	-- other: other hitbox in collision
-		if past_wall and other.tag == "ground" then
+		if not behind_wall and other.tag == "ground" then
 			-- ceiling collision
             if sep_vector.y > 0 and self.vspeed < 0 then
                 self:collisionStopY()
@@ -61,7 +65,7 @@ function Penguin:update(dt)
 	end
 
 	self.onCollision["jump_box"] = function(other, sep_vector)
-        if past_wall and other.tag == "ground" and sep_vector.y < 0 then
+        if not behind_wall and other.tag == "ground" and sep_vector.y < 0 then
             -- floor collision
             self.can_jump = true 
         	self:collisionStopY()

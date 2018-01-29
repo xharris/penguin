@@ -3,8 +3,11 @@ BlankE.addClassType("playState", "State")
 local k_join, k_leave, k_destruct
 wall = nil
 main_view = nil
+main_penguin = nil
 lvl_objects = nil
 last_lvl_end = {0,0}
+penguin_spawn = {}
+tile_snap = 32
 
 -- Called every time when entering the state.
 function playState:enter(previous)
@@ -18,37 +21,57 @@ function playState:enter(previous)
 	k_destruct = Input('k')
 
 	load_level("test")
+	-- add player's penguin
+	Net.join()
 end
 
 function load_level(name)
 	lvl_string = Asset.file('test')
 	lvl_length = lvl_string:len()
+	lvl_array = {{}}
 
-	local x = 0
-	local y = 0
-	local snap = 32
+	local x, y = 1, 1
+	local max_x, max_y = 1, 1
 	for c = 0, lvl_length do
 		char = lvl_string:at(c)
-		if char == '\n' then
-			x = 0
-			y = y + snap
+		if c < lvl_length then
+			if char == '\n' then
+				x = 1
+				y = y + 1
+				lvl_array[y] = {}
+			elseif char:trim() ~= '' then
+				lvl_array[y][x] = char
+				x = x + 1
+			end
+			if x > max_x then max_x = x end
+			if y > max_y then max_y = y end
 		end
+	end
 
-		if char == 'g' then
-			lvl_objects:add(Ground(x,y))
+	local pos_x, pos_y = 0, 0
+	for y = 1, max_y do
+		for x = 1, max_x do
+			char = lvl_array[y][x]
+			pos_x, pos_y = x*tile_snap-tile_snap, y*tile_snap-tile_snap
+
+			if char == 'g' then
+				lvl_objects:add(Ground(pos_x,pos_y,bitmask4(lvl_array, 'g', x, y)))
+			end
+
+			if char == 'p' then
+				table.insert(penguin_spawn, {pos_x, pos_y})
+			end
 		end
-
-		x = x + snap
 	end
 end
 
 function Net:onReady()
 	-- add player's penguin
-	new_penguin = Penguin()
-	level_container:addEntity(new_penguin)
-	main_view:follow(new_penguin)
+	main_penguin = Penguin()
+	main_penguin.x, main_penguin.y = unpack(penguin_spawn[1])
+	main_view:follow(main_penguin)
 
-	Net.addObject(new_penguin)
+	Net.addObject(main_penguin)
 end
 
 function playState:update(dt)
@@ -74,6 +97,7 @@ function playState:draw()
 		Net.draw('Penguin')
 		lvl_objects:call(function(o, obj)
 			obj:draw()
+			if main_penguin then main_penguin:draw() end 
 		end)
 	end)
 	Debug.draw()

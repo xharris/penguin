@@ -74,13 +74,7 @@ Net = {
         Net.is_connected = false
         Net.client = nil
 
-        for clientid, objects in pairs(Net._objects) do
-            for o, object in ipairs(objects) do
-                if not object.keep_on_disconnect then
-                    obj:destroy()
-                end
-            end
-        end
+        Net.removeClientObjects()
 
         return Net
     end,
@@ -103,7 +97,7 @@ Net = {
     _onDisconnect = function(clientid) 
         Debug.log('- '..clientid)
         if Net.onDisconnect then Net.onDisconnect(clientid) end
-        Net.removeClientObjects() 
+        Net.removeClientObjects(clientid) 
     end,
     
     _onReceive = function(data, id)
@@ -134,7 +128,7 @@ Net = {
             -- get assigned client id
             if data.event == 'getID' then
                 Net.id = data.info
-                Debug.log('call ready')
+                Debug.log('connected!')
                 Net._onReady()
             end
 
@@ -216,26 +210,24 @@ Net = {
             type='netevent',
             event='room.change'
         })
-        Net.removableClientObjects()
+        Net.removeClientObjects()
     end,
 
     removeClientObjects = function(clientid) 
         local removable = {}
         if not clientid then
-            for id, stuff in pairs(client) do
-                removable[id] = Net._objects[id]
-            end
+            removable = Net._objects
         else
             removable[clientid] = Net._objects[clientid]
         end
 
-        if Net._objects[clientid] then
-            for o, object in ipairs(Net._objects[clientid]) do
-                if not object.keep_on_disconnect then
+        for id, objects in pairs(removable) do
+            for uuid, obj in pairs(objects) do
+                if not obj.keep_on_disconnect then
                     obj:destroy()
                 end
             end
-            Net._objects[clientid] = nil
+            Net._objects[id] = nil
         end
     end,
 

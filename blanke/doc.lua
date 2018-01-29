@@ -586,6 +586,9 @@ num lerp(a, b, amt)
 num randRange(min, max)
 num sinusoidal(min, max, speed, start_offset)
 
+num bitmask4(map_table, tile_value, x, y)	-- https://gamedevelopment.tutsplus.com/tutorials/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673
+num bitmask8(map_table, tile_value, x, y)	-- untested
+
 str basename(str)
 str dirname(str)
 str extname(str)

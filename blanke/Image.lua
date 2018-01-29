@@ -102,6 +102,24 @@ Image = Class{
 
 		return Image(dest_image_data)
 	end,
+
+	frame = function(self, f, width, height, space_x, space_y)
+		space_x = ifndef(space_x, 0)
+		space_y = ifndef(space_y, 0)
+
+		local rows, columns = math.floor(self.height/height), math.floor(self.width/width)
+		
+		local x = math.floor(f % columns)
+		local y = math.floor(f / rows)
+
+		if x >= columns then x = columns - 1 end
+		if y >= rows then y = rows - 1 end
+	
+		x = x * (width+space_x)
+		y = y * (height+space_y)
+
+		return self:crop(x, y, width, height)
+	end,
 }
 
 return Image
