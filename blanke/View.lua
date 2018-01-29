@@ -35,8 +35,8 @@ View = Class{
         
         self.port_x = 0
         self.port_y = 0
-        self.port_width = CONF.window.width 
-        self.port_height = CONF.window.height
+        self.port_width = game_width 
+        self.port_height = game_height
         self.noclip = true
         
         self.shake_x = 0

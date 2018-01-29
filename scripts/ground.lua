@@ -1,8 +1,13 @@
 BlankE.addClassType("Ground", "Entity")
 
-function Ground:init()
+function Ground:init(x, y)
 	self:addShape("ground", "rectangle", {32, 32, 32, 32}, "ground")
-	self.img_tile = self.parent:getTileImage(self.x, self.y, nil, "ground")
+	
+	self.x = x
+	self.y = y
+
+	self.img_tile = Image("ground"):crop(0,0,32,32)
+
 	self.img_tile.x = self.x
 	self.img_tile.y = self.y
 	
@@ -15,8 +20,6 @@ function Ground:update(dt)
 	if wall then wall_x = wall.x end
 
 	if wall_x > self.x and not self.fragged then
-		self.parent:removeTile(self.x, self.y, nil, "ground")
-
 		if wall_x > self.x + 32 then self:removeShape("ground") end
 		self.fragged = true
 		self.img_frags = self.img_tile:chop(32/5,32/5)

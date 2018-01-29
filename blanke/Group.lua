@@ -4,8 +4,8 @@ Group = Class{
 		self.children = {}
 	end,
 
-	add = function(self, ent)
-		table.insert(self.children, ent)
+	add = function(self, obj)
+		table.insert(self.children, obj)
 	end,
 
 	remove = function(self, i)
@@ -14,7 +14,7 @@ Group = Class{
 
 	call = function(self, func)
 		for i_c, c in ipairs(self.children) do
-			func(c)
+			func(i_c, c)
 		end
 	end,
 
@@ -37,3 +37,5 @@ Group = Class{
 		return self:closest_point(ent.x, ent.y)
 	end,
 }
+
+return Group

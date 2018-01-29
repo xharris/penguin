@@ -64,6 +64,10 @@ function extname(str)
 	end
 end
 
+function bitmask4(t, x, y)
+
+end
+
 --[[
 
 	STRING
@@ -99,6 +103,9 @@ function string:contains(str)
 end
 function string:trim()
 	return self:gsub("^%s+", ""):gsub("%s+$", "")
+end
+function string:at(num)
+	return self:sub(num,num)
 end
 
 --[[

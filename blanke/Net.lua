@@ -87,7 +87,6 @@ Net = {
 
     _onReady = function()
         if Net.onReady then Net.onReady() end
-        Net.setRoom(Net.room)
         Net.send({
             type="netevent",
             event="object.sync",
@@ -129,12 +128,13 @@ Net = {
             return
         end
 
-        if data.type and data.type == 'netevent' and data.room == Net.room then
+        if data.type and data.type == 'netevent' then
             --Debug.log(data.event)
 
             -- get assigned client id
             if data.event == 'getID' then
                 Net.id = data.info
+                Debug.log('call ready')
                 Net._onReady()
             end
 
@@ -145,41 +145,44 @@ Net = {
             if data.event == 'client.disconnect' then
                 Net._onDisconnect(data.info)
             end
-            
-            -- new object added from diff client
-            if data.event == 'object.add' and data.clientid ~= Net.id then
-                local obj = data.info.object
-                local clientid = data.clientid
+             
 
-                Debug.log("added "..obj.classname)
-                Net._objects[clientid] = ifndef(Net._objects[clientid], {})
-                if not Net._objects[clientid][obj.net_uuid] then
-                    Net._objects[clientid][obj.net_uuid] = _G[obj.classname]()
-                    Net._objects[clientid][obj.net_uuid].net_object = true
-                    
-                    if obj.values then
-                        for var, val in pairs(obj.values) do
-                            Net._objects[clientid][obj.net_uuid][var] = val
+            if data.room == Net.room then
+                -- new object added from diff client
+                if data.event == 'object.add' and data.clientid ~= Net.id then
+                    local obj = data.info.object
+                    local clientid = data.clientid
+
+                    Debug.log("added "..obj.classname)
+                    Net._objects[clientid] = ifndef(Net._objects[clientid], {})
+                    if not Net._objects[clientid][obj.net_uuid] then
+                        Net._objects[clientid][obj.net_uuid] = _G[obj.classname]()
+                        Net._objects[clientid][obj.net_uuid].net_object = true
+                        
+                        if obj.values then
+                            for var, val in pairs(obj.values) do
+                                Net._objects[clientid][obj.net_uuid][var] = val
+                            end
                         end
                     end
                 end
-            end
 
-            -- update net entity
-            if data.event == 'object.update' and data.clientid ~= Net.id then
-                if Net._objects[data.clientid] then
-                    local obj = Net._objects[data.clientid][data.info.net_uuid]
-                    if obj then
-                        for var, val in pairs(data.info.values) do
-                            obj[var] = val
+                -- update net entity
+                if data.event == 'object.update' and data.clientid ~= Net.id then
+                    if Net._objects[data.clientid] then
+                        local obj = Net._objects[data.clientid][data.info.net_uuid]
+                        if obj then
+                            for var, val in pairs(data.info.values) do
+                                obj[var] = val
+                            end
                         end
                     end
                 end
-            end
 
-            -- send net object data to other clients
-            if data.event == 'object.sync' and data.info.new_client ~= Net.id then
-                Net.sendSyncObjects()
+                -- send net object data to other clients
+                if data.event == 'object.sync' and data.info.new_client ~= Net.id then
+                    Net.sendSyncObjects()
+                end
             end
 
             -- another entity changed their room

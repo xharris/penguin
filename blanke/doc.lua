@@ -570,3 +570,44 @@ function state:draw()
 		my_scene:draw()
 	end)
 end
+
+--[[
+
+Util
+]]
+
+-- lone methods
+bool ifndef(var, default)
+num[3] hex2rgb(hex)
+
+num decimal_places(num)			-- number of dec places in float
+num clamp(x, min, max)
+num lerp(a, b, amt)
+num randRange(min, max)
+num sinusoidal(min, max, speed, start_offset)
+
+str basename(str)
+str dirname(str)
+str extname(str)
+
+-- STRING
+replaceAt(pos, new_str)
+starts(str)
+ends(str)
+split(sep_str)
+contains(str)
+trim()
+at(num)
+
+-- TABLE
+find(t, value)
+hasValue(t, value)
+copy(t)
+toNumber(t)
+len(t)
+forEach(t, func)
+
+-- MATH
+round(num, places)
+
+

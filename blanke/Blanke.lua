@@ -65,6 +65,7 @@ HC 		= blanke_require('extra.HC')
 grease 	= blanke_require('extra.grease')
 
 Asset 	= blanke_require('Asset')
+Group 	= blanke_require('Group')
 State	= blanke_require('State')
 Input 	= blanke_require('Input')
 Timer 	= blanke_require('Timer')
