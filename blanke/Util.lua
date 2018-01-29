@@ -58,7 +58,10 @@ function dirname(str)
 	end
 end
 function extname(str)
-	return str:match("^.+(%..+)$")
+	str = str:match("^.+(%..+)$")
+	if str then
+		return str:sub(2)
+	end
 end
 
 --[[
@@ -112,7 +115,7 @@ function table.find(t, value)
 	return 0
 end	
 
-function table.has_value(t, value)
+function table.hasValue(t, value)
 	for v, val in ipairs(t) do
 		if val == value then return true end
 	end
@@ -123,7 +126,7 @@ function table.copy(t)
 	return {unpack(t)}
 end
 
-function table.tonumber(t)
+function table.toNumber(t)
 	for i, val in ipairs(t) do
 		t[i] = tonumber(val)
 	end

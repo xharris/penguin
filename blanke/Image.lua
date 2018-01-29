@@ -4,11 +4,19 @@ Image = Class{
 	init = function(self, name)
 		self.name = name 
 
-		if type(name) == "string" and assets[name] then
-			self.image = assets[name]()
-		else
+		if tostring(self.name):contains("ImageData") then
 			self.image = love.graphics.newImage(name)
+		else
+
+			local asset = Asset.image(name)
+			self.image = asset
+
+			if asset == nil then
+				error('Image not found: \"'..tostring(name)..'\"')
+				return
+			end
 		end
+		
 		self.image:setWrap("clampzero","clampzero")
 
 		self.quad = nil
@@ -30,7 +38,7 @@ Image = Class{
 
 	-- static: check if an image exists
 	exists = function(img_name)
-		return (assets[img_name] ~= nil)
+		return Asset.has('image',img_name)
 	end,
 
 	setWidth = function(self, width)

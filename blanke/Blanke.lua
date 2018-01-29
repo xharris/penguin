@@ -64,6 +64,7 @@ anim8 	= blanke_require('extra.anim8')
 HC 		= blanke_require('extra.HC')
 grease 	= blanke_require('extra.grease')
 
+Asset 	= blanke_require('Asset')
 State	= blanke_require('State')
 Input 	= blanke_require('Input')
 Timer 	= blanke_require('Timer')
@@ -128,6 +129,7 @@ BlankE = {
 		Scene._fake_view = View()
 	    uuid.randomseed(love.timer.getTime()*10000)
 	    updateGlobals(0)
+		Asset.loadScripts()
 
 	    -- figure out the first state to run
 	    if BlankE.first_state and not first_state then
@@ -139,8 +141,9 @@ BlankE = {
 		if type(first_state) == 'string' then
 			first_state = _G[first_state]
 		end
-		State.switch(first_state)   
+		State.switch(first_state)  
 		BlankE._is_init = true
+		print("BlankE initialized")
 	end,
 
 	injectCallbacks = function()
@@ -595,5 +598,7 @@ function _empty_state:draw()
 	love.graphics.printf("NO GAME",0,game_height/2,game_width,"center")
 	love.graphics.pop()
 end	
+
+error = BlankE.errhand
 
 return BlankE

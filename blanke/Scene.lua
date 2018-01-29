@@ -89,8 +89,9 @@ Scene = Class{
 			_btn_zoom_out = Input('wheel.down')		
 		end
 
-		if name and assets[name] then
-			self:load(assets[name]())
+		local load_scene = Asset.file(name)
+		if load_scene then
+			self:load(load_scene)
 		end
 
 		if #self.layer_order == 0 then
@@ -173,8 +174,7 @@ Scene = Class{
 		return json.encode(output)
 	end,
 
-	load = function(self, path, compressed)
-		scene_string = love.filesystem.read(path)
+	load = function(self, scene_string, compressed)
 		scene_data = json.decode(scene_string)
 
 		self.layer_data = {}
