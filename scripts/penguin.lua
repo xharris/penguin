@@ -2,7 +2,7 @@ BlankE.addClassType("Penguin", "Entity")
 
 local k_right, k_left, k_up
 
-Penguin.net_sync_vars = {'x','color','hspeed','sprite_speed'}
+Penguin.net_sync_vars = {'color','hspeed','sprite_speed','sprite_xscale'}
 
 function Penguin:init()
 	self:addAnimation{
@@ -68,7 +68,7 @@ function Penguin:update(dt)
             -- floor collision
             self.can_jump = true 
         	self:collisionStopY()
-			self:netSync("vspeed")
+			self:netSync("vspeed","x","y")
         end 
     end
 
@@ -109,7 +109,7 @@ end
 function Penguin:jump()
 	if self.can_jump then
 		self.vspeed = -700
-		self:netSync("vspeed")
+		self:netSync("vspeed","x","y")
 		self.can_jump = false
 	end
 end

@@ -140,44 +140,9 @@ Net = {
             if data.event == 'client.disconnect' then
                 Net._onDisconnect(data.info)
             end
-             
 
             if data.room == Net.room then
-                -- new object added from diff client
-                if data.event == 'object.add' and data.clientid ~= Net.id then
-                    local obj = data.info.object
-                    local clientid = data.clientid
-
-                    Debug.log("added "..obj.classname)
-                    Net._objects[clientid] = ifndef(Net._objects[clientid], {})
-                    if not Net._objects[clientid][obj.net_uuid] then
-                        Net._objects[clientid][obj.net_uuid] = _G[obj.classname]()
-                        Net._objects[clientid][obj.net_uuid].net_object = true
-                        
-                        if obj.values then
-                            for var, val in pairs(obj.values) do
-                                Net._objects[clientid][obj.net_uuid][var] = val
-                            end
-                        end
-                    end
-                end
-
-                -- update net entity
-                if data.event == 'object.update' and data.clientid ~= Net.id then
-                    if Net._objects[data.clientid] then
-                        local obj = Net._objects[data.clientid][data.info.net_uuid]
-                        if obj then
-                            for var, val in pairs(data.info.values) do
-                                obj[var] = val
-                            end
-                        end
-                    end
-                end
-
-                -- send net object data to other clients
-                if data.event == 'object.sync' and data.info.new_client ~= Net.id then
-                    Net.sendSyncObjects()
-                end
+                Net._onEvent(data)
             end
 
             -- another entity changed their room
@@ -192,6 +157,46 @@ Net = {
         end
 
         if Net.onReceive then Net.onReceive(data) end
+    end,
+
+    _onEvent = function(data)
+        if Net.onEvent then Net.onEvent(data) end
+
+        -- new object added from diff client
+        if data.event == 'object.add' and data.clientid ~= Net.id then
+            local obj = data.info.object
+            local clientid = data.clientid
+
+            Debug.log("added "..obj.classname)
+            Net._objects[clientid] = ifndef(Net._objects[clientid], {})
+            if not Net._objects[clientid][obj.net_uuid] then
+                Net._objects[clientid][obj.net_uuid] = _G[obj.classname]()
+                Net._objects[clientid][obj.net_uuid].net_object = true
+                
+                if obj.values then
+                    for var, val in pairs(obj.values) do
+                        Net._objects[clientid][obj.net_uuid][var] = val
+                    end
+                end
+            end
+        end
+
+        -- update net entity
+        if data.event == 'object.update' and data.clientid ~= Net.id then
+            if Net._objects[data.clientid] then
+                local obj = Net._objects[data.clientid][data.info.net_uuid]
+                if obj then
+                    for var, val in pairs(data.info.values) do
+                        obj[var] = val
+                    end
+                end
+            end
+        end
+
+        -- send net object data to other clients
+        if data.event == 'object.sync' and data.info.new_client ~= Net.id then
+            Net.sendSyncObjects()
+        end
     end,
 
     send = function(in_data) 
@@ -277,7 +282,6 @@ Net = {
                 if #vars == 0 then
                     for v, var in ipairs(self.net_sync_vars) do
                         if hasVarChanged(var) then 
-                            Debug.log(var,self[var])
                             update_values[var] = self[var]
                         end
                     end
@@ -317,6 +321,14 @@ Net = {
     updateObjects = function()
         for o, obj in ipairs(Net._local_objects) do
             obj:netSync()
+        end
+    end,
+
+    getPopulation = function(room)
+        if room then
+            -- get population from different room
+        else
+            return table.len(Net._objects) + 1          -- plus one for self
         end
     end,
 

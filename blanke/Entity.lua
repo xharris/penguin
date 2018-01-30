@@ -128,8 +128,8 @@ Entity = Class{
 			end
 	
 			-- add gravity to hspeed/vspeed
-			--if gravx ~= 0 then self.hspeed = self.hspeed + gravx end
-			if gravy ~= 0 then self.vspeed = self.vspeed + gravy end
+			if math.floor(gravx) ~= 0 then self.hspeed = self.hspeed + gravx end
+			if math.floor(gravy) ~= 0 then self.vspeed = self.vspeed + gravy end
 
 			-- move shapes if the x/y is different
 			if self.xprevious ~= self.x or self.yprevious ~= self.y then

@@ -20,13 +20,49 @@ function playState:enter(previous)
 	k_leave = Input('d')
 	k_destruct = Input('k')
 
-	load_level("test")
+	loadLevel("test")
 	-- add player's penguin
 	spawnPlayer()
 	Net.join()
 end
 
-function load_level(name)
+local send_ready = false
+function playState:update(dt)
+	if k_join() then
+		Steam.init()
+	end
+
+	if Net.getPopulation() >= 3 and not send_ready then
+		send_ready = true
+		Net.send({
+			type="netevent",
+			event="spawn_wall"
+		})
+	end
+
+	if k_leave() and Net.is_connected then
+		Net.disconnect()
+	end
+end
+
+local spawn_wall_count = 0
+function playState:draw()
+	main_view:draw(function()
+		if wall then wall:draw() end
+		Net.draw('DestructionWall')
+		Net.draw('Penguin')
+		lvl_objects:call(function(o, obj)
+			obj:draw()
+			if main_penguin then main_penguin:draw() end 
+		end)
+	end)
+	Draw.text(tostring(spawn_wall_count)..'/'..tostring(Net.getPopulation()), game_width/2, 50)
+
+	Debug.draw()
+end	
+
+
+function loadLevel(name)
 	lvl_string = Asset.file('test')
 	lvl_length = lvl_string:len()
 	lvl_array = {{}}
@@ -72,6 +108,14 @@ function spawnPlayer()
 	main_view:follow(main_penguin)
 end
 
+function startDestruction()
+	if not wall then
+		wall = DestructionWall()
+		wall.x = -32
+		--Net.addObject(wall)
+	end
+end
+
 function Net:onReady()
 	-- add player's penguin
 	spawnPlayer()
@@ -79,31 +123,12 @@ function Net:onReady()
 	Net.addObject(main_penguin)
 end
 
-function playState:update(dt)
-	if k_join() and not Net.is_connected then
-		Net.join()
-	end
+Net.onEvent = function(data)
+	if data.event == "spawn_wall" then
+		spawn_wall_count = spawn_wall_count + 1
 
-	if k_destruct() and not wall then
-		wall = DestructionWall()
-		wall.x = -32
-		Net.addObject(wall)
-	end
-
-	if k_leave() and Net.is_connected then
-		Net.disconnect()
+		if spawn_wall_count >= Net.getPopulation() then
+			startDestruction()
+		end
 	end
 end
-
-function playState:draw()
-	main_view:draw(function()
-		if wall then wall:draw() end
-		Net.draw('DestructionWall')
-		Net.draw('Penguin')
-		lvl_objects:call(function(o, obj)
-			obj:draw()
-			if main_penguin then main_penguin:draw() end 
-		end)
-	end)
-	Debug.draw()
-end	

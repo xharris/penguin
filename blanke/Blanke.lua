@@ -58,6 +58,7 @@ blanke_require("extra.printr")
 blanke_require("extra.json")
 uuid 	= blanke_require("extra.uuid")
 
+
 Class 	= blanke_require('Class')	-- hump.class
 
 anim8 	= blanke_require('extra.anim8')
@@ -84,6 +85,7 @@ Tween 	= blanke_require('Tween')
 Scene 	= blanke_require('Scene')
 Camera 	= blanke_require('Camera') 	-- hump.camera cuz it's so brilliant
 Canvas  = blanke_require('Canvas')
+Steam 	= blanke_require('Steam')
 
 -- load bundled effects
 local eff_path = dirname((...):gsub('[.]','/'))..'effects'

@@ -572,6 +572,11 @@ function state:draw()
 end
 
 --[[
+#     # ####### ##### #
+#     #    #      #   #
+#     #    #      #   #
+#     #    #      #   #
+ #####     #    ##### #######
 
 Util
 ]]
@@ -613,4 +618,40 @@ forEach(t, func)
 -- MATH
 round(num, places)
 
+--[[
+#   #  ###### #######
+##  #  #         #
+# # #  #####     #
+#  ##  #         #
+#   #  ######    #
 
+Net 
+]]
+
+-- class methods
+join([address], [port])				-- address = "localhost", port = 12345
+disconnect()
+send(data)
+--[[ to send an event
+	Net.send({
+		type="netevent",
+		event="object.sploosh",
+		info={
+			bob = {1,2,"oatmeal"}
+		}
+	})
+]]
+getPopulation()						-- get number of clients connected (including self)
+draw([classname])					-- draw objects synced through network, or just a certain class
+addObject(obj)						-- add an object to be synced with other clients
+--[[
+> optional obj properties
+	net_sync_vars = {}				-- table containing the names of properties to sync ('x','hspeed','walk_speed','sprite_xcsale')
+
+> this method adds the netSync method to the object
+	obj:netSync("x","y","sprite_color") 	-- used to manually sync an object (use wisely)
+]]
+
+-- callback methods
+onReady()
+onEvent(data)
