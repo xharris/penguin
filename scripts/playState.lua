@@ -22,6 +22,7 @@ function playState:enter(previous)
 
 	load_level("test")
 	-- add player's penguin
+	spawnPlayer()
 	Net.join()
 end
 
@@ -65,11 +66,15 @@ function load_level(name)
 	end
 end
 
-function Net:onReady()
-	-- add player's penguin
+function spawnPlayer()
 	main_penguin = Penguin()
 	main_penguin.x, main_penguin.y = unpack(penguin_spawn[1])
 	main_view:follow(main_penguin)
+end
+
+function Net:onReady()
+	-- add player's penguin
+	spawnPlayer()
 
 	Net.addObject(main_penguin)
 end

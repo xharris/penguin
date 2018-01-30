@@ -2,7 +2,7 @@ BlankE.addClassType("Penguin", "Entity")
 
 local k_right, k_left, k_up
 
-Penguin.net_sync_vars = {'x','y','color','hspeed','vspeed','sprite_xscale'}
+Penguin.net_sync_vars = {'x','color','hspeed','sprite_speed'}
 
 function Penguin:init()
 	self:addAnimation{
@@ -34,7 +34,6 @@ function Penguin:init()
 	self.gravity = 30
 	self.can_jump = true
 	-- random shade of blue
-	Debug.log(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"}))
 	self.color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"}))
 	self.sprite_yoffset = -16
 	self.sprite_xoffset = -16
@@ -69,32 +68,48 @@ function Penguin:update(dt)
             -- floor collision
             self.can_jump = true 
         	self:collisionStopY()
+			self:netSync("vspeed")
         end 
     end
 
 	-- left/right movement
 	if not self.net_object then
+		self.hspeed = 0
 		if k_right() then
 			self.hspeed = 180
-			self.sprite_xscale = 1
+			self.sprite_speed = 2
 		end
 		if k_left() then
 			self.hspeed = -180
-			self.sprite_xscale = -1
+			self.sprite_speed = 2
 		end
-		if self.hspeed ~= 0 and not k_right() and not k_left() then
-			self.hspeed = 0
+
+		if not k_left() and not k_right() then
+			self.sprite_speed = 0
 		end
 
 		if k_up() then
 			self:jump()
 		end
+	else
+		--Debug.log("hspeed:",self.hspeed)
+	end
+
+	if self.hspeed > 0 then
+		self.sprite_xscale = 1
+	elseif self.hspeed < 0 then
+		self.sprite_xscale = -1
+	end
+
+	if self.hspeed == 0 then
+		self.sprite_frame = 1
 	end
 end
 
 function Penguin:jump()
 	if self.can_jump then
 		self.vspeed = -700
+		self:netSync("vspeed")
 		self.can_jump = false
 	end
 end

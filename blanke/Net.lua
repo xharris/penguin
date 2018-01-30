@@ -54,15 +54,16 @@ Net = {
         Net.client = grease.udpClient()
         
         Net.client.callbacks.recv = Net._onReceive
-
         Net.client.handshake = "blanke_net"
-        
+
         Net.client:setPing()
         local success, err = Net.client:connect(Net.address, Net.port)
         
         if success then
             Net.is_connected = true
             Debug.log("joining "..Net.address..':'..Net.port)
+        else
+            Debug.log("could not connect to "..Net.address..":"..Net.port)
         end
 
         return Net
@@ -253,7 +254,7 @@ Net = {
             update_values = {}
             if not self.net_object then
                 function hasVarChanged(var_name)
-                    if self.net_var_old[var_name] and
+                    if self.net_var_old[var_name] ~= nil and
                        self.net_var_old[var_name] == self[var_name]
                     then
                         return false
@@ -276,6 +277,7 @@ Net = {
                 if #vars == 0 then
                     for v, var in ipairs(self.net_sync_vars) do
                         if hasVarChanged(var) then 
+                            Debug.log(var,self[var])
                             update_values[var] = self[var]
                         end
                     end

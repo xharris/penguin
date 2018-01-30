@@ -93,7 +93,7 @@ num sprite_xshear, sprite_yshear
 num sprite_color[r, g, b]			-- blend color for sprite. default = 255(white)
 num sprite_alpha					-- default = 255
 num sprite_speed					-- default = 1
-num sprite_frame
+num sprite_frame					-- TODO: doesn't work
 
 num direction						-- in degrees
 num friction

@@ -128,7 +128,7 @@ Entity = Class{
 			end
 	
 			-- add gravity to hspeed/vspeed
-			if gravx ~= 0 then self.hspeed = self.hspeed + gravx end
+			--if gravx ~= 0 then self.hspeed = self.hspeed + gravx end
 			if gravy ~= 0 then self.vspeed = self.vspeed + gravy end
 
 			-- move shapes if the x/y is different
@@ -281,6 +281,11 @@ Entity = Class{
 
 		if sprite ~= nil then
 			self._call_sprite_update[sprite_index] = true
+
+			if self.sprite_speed == 0 and self.sprite_frame ~= 0 then
+				sprite:gotoFrame(self.sprite_frame)
+			end
+
 			-- draw current sprite (image, x,y, angle, sx, sy, ox, oy, kx, ky) s=scale, o=origin, k=shear
 			local img = self._images[sprite_index]
 			Draw.push('all')
