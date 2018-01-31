@@ -3,6 +3,7 @@ function blanke_require(import)
 	return require(blanke_path..import)
 end
 
+local tlfres = blanke_require('extra.tlfres')
 blanke_require('Globals')
 blanke_require('Util')
 blanke_require('Debug')
@@ -113,6 +114,13 @@ BlankE = {
 	_snap_mouse_y = 0,
 	_mouse_x = 0,
 	_mouse_y = 0,
+
+	-- window scaling
+	_offset_x = 0,
+	_offset_y = 0,
+	scale_x = 1,
+	scale_y = 1,
+
 	_callbacks_replaced = false,
 	old_love = {},
 	pause = false,
@@ -427,8 +435,12 @@ BlankE = {
 	end,
 
 	draw = function()
+		love.graphics.push()
+		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
+		love.graphics.translate(BlankE._offset_x, BlankE._offset_y)
 		StateManager.iterateStateStack('draw')
-
+		love.graphics.pop()
+		
         -- disable any scenes that aren't being actively drawn
         local active_scenes = 0
 		_iterateGameGroup('scene', function(scene)

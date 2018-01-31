@@ -19,29 +19,26 @@ function hsv2rgb(hsv)
 	local a = 255
 	if hsv[4] ~= nil then a = hsv[4] end
 
-	h = math.rad(h)
 	s = s/100
 	v = v/100
 
-	h=h+math.pi/2--because the r vector is up
-	local r, g, b = 1, 1, 1
-	local r1, r2 =  0          ,  1.0
-	local g1, g2 = -math.sqrt( 3 )/2, -0.5
-	local b1, b2 =  math.sqrt( 3 )/2, -0.5
-	local h1, h2 = math.cos( h ), math.sin( h )
+	local c = v * s
+	local x = c * (1 - math.abs(h / 60 % 2 - 1))
+	local m = v - c
 
-	--hue
-	r = h1*r1 + h2*r2
-	g = h1*g1 + h2*g2
-	b = h1*b1 + h2*b2
-	--saturation
-	r = r + (1-r)*s
-	g = g + (1-g)*s
-	b = b + (1-b)*s
+	local value_table = {
+		{c, x, 0}, {x, c, 0}, {0, c, x},
+		{0, x, c}, {x, 0, c}, {c, 0, x}
+	}
 
-	local ret_table = {r * v * 255, g * v * 255, b * v * 255}
-	if hsv[4] ~= nil then table.insert(ret_table, (a or 1) * 255) end
-	return ret_table
+	for i, rgb in ipairs(value_table) do
+		if h >= (i-1)*60 and h < (i)*60 then
+			local r, g, b = unpack(rgb)
+			return {(r + m) * 255, (g + m) * 255, (b + m) * 255, a}
+		end
+	end
+
+	return {0, 0, 0, a}
 end
 
 function clamp(x, min, max)

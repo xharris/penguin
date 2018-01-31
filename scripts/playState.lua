@@ -8,14 +8,13 @@ lvl_objects = nil
 last_lvl_end = {0,0}
 penguin_spawn = {}
 tile_snap = 32
-water_darkness = 88
 
 -- Called every time when entering the state.
 function playState:enter(previous)
 	Draw.setBackgroundColor('white2')
 
-	bg_water = Image('background')
-	bg_water.color = {0,0,210}
+	bg_sky = Image('background')
+	bg_sky.color = {0,0,210}
 
 	main_view = View()
 	lvl_objects = Group()
@@ -32,7 +31,8 @@ end
 
 local send_ready = false
 function playState:update(dt)
-	bg_water.color = hsv2rgb({212,70,100})
+	bg_sky.color = hsv2rgb({195,37,100})--hsv2rgb({186,39,88})
+	water_color = hsv2rgb({212,70,100})
 	
 	if k_join() then
 		Steam.init()
@@ -53,11 +53,13 @@ end
 
 local spawn_wall_count = 0
 function playState:draw()
-	-- draw background
-	Draw.setColor(hsv2rgb({186, 65, water_darkness}))
+	-- draw water
+	Draw.setColor(water_color)
 	Draw.rect('fill',0,0,game_width,game_height)
+	
+	-- draw sky
 	Draw.resetColor()
-	bg_water:tileX()
+	bg_sky:tileX()
 
 	-- draw objects
 	main_view:draw(function()
@@ -70,6 +72,9 @@ function playState:draw()
 		end)
 	end)
 	Draw.text(tostring(spawn_wall_count)..'/'..tostring(Net.getPopulation()), game_width/2, 50)
+	
+	Draw.setColor('black')
+	Draw.rect('line', 5, 5, game_width-10, game_height-10)
 
 	Debug.draw()
 end	
