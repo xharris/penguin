@@ -2,6 +2,8 @@ mouse_x = 0
 mouse_y = 0
 game_width = 0
 game_height = 0
+window_width = 0
+window_height = 0
 game_time = 0
 
 function updateGlobals(dt)
@@ -36,10 +38,11 @@ function updateGlobals(dt)
 		end
 	end
 
-	mouse_x = love.mouse.getX() + ifndef(Effect._mouse_offx, 0)
-	mouse_y = love.mouse.getY() + ifndef(Effect._mouse_offy, 0)
+	mouse_x, mouse_y = BlankE.scaledMouse(love.mouse.getX() + ifndef(Effect._mouse_offx, 0), love.mouse.getY() + ifndef(Effect._mouse_offy, 0))
 	game_width = new_width
 	game_height = new_height
+	window_width = width / BlankE.scale_x
+	window_height = height / BlankE.scale_y
 end
 
 CONF = {

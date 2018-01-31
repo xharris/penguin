@@ -3,7 +3,6 @@ function blanke_require(import)
 	return require(blanke_path..import)
 end
 
-local tlfres = blanke_require('extra.tlfres')
 blanke_require('Globals')
 blanke_require('Util')
 blanke_require('Debug')
@@ -438,7 +437,21 @@ BlankE = {
 		love.graphics.push()
 		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
 		love.graphics.translate(BlankE._offset_x, BlankE._offset_y)
+
+		love.graphics.stencil(function()
+	   		love.graphics.rectangle("fill",0, 0, game_width, game_height)
+		end, "replace", 1)	
+
+		-- draw game
+	 	love.graphics.setStencilTest("equal", 1)
 		StateManager.iterateStateStack('draw')
+		love.graphics.translate(-BlankE._offset_x, -BlankE._offset_y)
+
+		-- draw border outside of window
+	 	love.graphics.setStencilTest("equal", 0)
+		BlankE.drawOutsideWindow()
+	 	love.graphics.setStencilTest()
+
 		love.graphics.pop()
 		
         -- disable any scenes that aren't being actively drawn
@@ -456,6 +469,23 @@ BlankE = {
 	        return
 	    end
 	    love.timer.sleep(next_time - cur_time)
+	end,
+
+	drawOutsideWindow = function()
+		Draw.setColor('black')
+		Draw.rect('fill',0,0,window_width,window_height)
+	end,
+
+	scaledMouse = function(x, y) 
+		x = x / BlankE.scale_x - BlankE._offset_x  
+		y = y / BlankE.scale_y - BlankE._offset_y 
+
+		if x < 0 then x = 0 end
+		if y < 0 then y = 0 end
+		if x > game_width then x = game_width end
+		if y > game_height then y = game_height end
+
+		return x, y 
 	end,
 
 	resize = function(w,h)
@@ -478,12 +508,14 @@ BlankE = {
 
 	mousepressed = function(x, y, button) 
 	    _iterateGameGroup("input", function(input)
+	    	x, y = BlankE.scaledMouse(x, y)
 	        input:mousepressed(x, y, button)
 	    end)
 	end,
 
 	mousereleased = function(x, y, button) 
 	    _iterateGameGroup("input", function(input)
+	    	x, y = BlankE.scaledMouse(x, y)
 	        input:mousereleased(x, y, button)
 	    end)
 	end,

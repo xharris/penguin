@@ -41,7 +41,9 @@ function state0:enter()
 end
 
 -- possible init options
-Blanke.init(first_state) -- first_state: can be string or object
+BlankE.init(first_state) -- first_state: can be string or object
+
+BlankE.drawOutsideWindow()	-- can be overridden to make custom drawings outside of game frame
 
 --[[
  ###  #######     #     ####### ###### 
@@ -281,9 +283,11 @@ num width, height 			-- width/height including scaling
 
 -- methods
 draw()
-tileX()						-- draw function that tiles image horizontally
-tileY()						-- draw function that tiles image vertically
-tile()						-- draw function that tiles image horiz and vert
+								-- w/h argument limits size of tiling. TODO: use scissor?
+tileX([w])						-- draw function that tiles image horizontally
+tileY([h])						-- draw function that tiles image vertically
+tile([w, h])					-- draw function that tiles image horiz and vert
+
 setWidth(width)
 setHeight(height)
 setSize(width, height)

@@ -74,11 +74,10 @@ function playState:draw()
 	Draw.text(tostring(spawn_wall_count)..'/'..tostring(Net.getPopulation()), game_width/2, 50)
 	
 	Draw.setColor('black')
-	Draw.rect('line', 5, 5, game_width-10, game_height-10)
+	Draw.circle('line', mouse_x, mouse_y, 10)
 
 	Debug.draw()
 end	
-
 
 function loadLevel(name)
 	lvl_string = Asset.file('test')

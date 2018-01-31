@@ -74,26 +74,30 @@ Image = Class{
 		return self
 	end,
 
-	tileX = function(self)
-		for x = self.x, game_width, self.width do
-			if x < game_width then
+	tileX = function(self, w)
+		w = ifndef(w, game_width)
+		for x = self.x, w, self.width do
+			if x < w then
 				self:draw(x, self.y)
 			end
 		end
 	end,
 
-	tileY = function(self)
-		for y = self.y, game_height, self.height do
-			if y < game_height then
+	tileY = function(self, h)
+		h = ifndef(h, game_height)
+		for y = self.y, h, self.height do
+			if y < h then
 				self:draw(self.y, y)
 			end
 		end
 	end,
 
-	tile = function(self)
-		for x = self.x, game_width, self.width do
-			for y = self.y, game_height, self.height do
-				if x < game_width and y < game_height then
+	tile = function(self, w, h)
+		w = ifndef(w, game_width)
+		h = ifndef(h, game_height)
+		for x = self.x, w, self.width do
+			for y = self.y, h, self.height do
+				if x < w and y < h then
 					self:draw(x,y)
 				end
 			end
