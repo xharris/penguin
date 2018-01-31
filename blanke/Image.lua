@@ -27,7 +27,7 @@ Image = Class{
 		self.yscale = 1
 		self.xoffset = 0
 		self.yoffset = 0
-		self.color = {['r']=255,['g']=255,['b']=255}
+		self.color = {255,255,255}
 		self.alpha = 255
 
 		self.orig_width = self.image:getWidth()
@@ -56,19 +56,48 @@ Image = Class{
 		self.setHeight(height)
 	end,
 
-	draw = function(self)
+	draw = function(self, x, y)
 		self.width = self.orig_width * self.xscale
 		self.height = self.orig_height * self.yscale
 
+		x = ifndef(x, self.x)
+		y = ifndef(y, self.y)
+
 		love.graphics.push()
-		love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.alpha)	
+		love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.alpha)	
 		if self.quad then
-			love.graphics.draw(self.image, self.quad, self.x, self.y, math.rad(self.angle), self.xscale, self.yscale, self.xoffset, self.yoffset, self.xshear, self.yshear)
+			love.graphics.draw(self.image, self.quad, x, y, math.rad(self.angle), self.xscale, self.yscale, self.xoffset, self.yoffset, self.xshear, self.yshear)
 		else
-			love.graphics.draw(self.image, self.x, self.y, math.rad(self.angle), self.xscale, self.yscale, self.xoffset, self.yoffset, self.xshear, self.yshear)
+			love.graphics.draw(self.image, x, y, math.rad(self.angle), self.xscale, self.yscale, self.xoffset, self.yoffset, self.xshear, self.yshear)
 		end
 		love.graphics.pop()
 		return self
+	end,
+
+	tileX = function(self)
+		for x = self.x, game_width, self.width do
+			if x < game_width then
+				self:draw(x, self.y)
+			end
+		end
+	end,
+
+	tileY = function(self)
+		for y = self.y, game_height, self.height do
+			if y < game_height then
+				self:draw(self.y, y)
+			end
+		end
+	end,
+
+	tile = function(self)
+		for x = self.x, game_width, self.width do
+			for y = self.y, game_height, self.height do
+				if x < game_width and y < game_height then
+					self:draw(x,y)
+				end
+			end
+		end
 	end,
 
     __call = function(self)

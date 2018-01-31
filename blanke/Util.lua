@@ -12,6 +12,38 @@ function hex2rgb(hex)
     end
 end
 
+-- modified version of https://github.com/EmmanuelOga/columns/blob/master/utils/color.lua
+-- https://gist.github.com/raingloom/3cb614b4e02e9ad52c383dcaa326a25a
+function hsv2rgb(hsv)
+	local h, s, v = unpack(hsv)
+	local a = 255
+	if hsv[4] ~= nil then a = hsv[4] end
+
+	h = math.rad(h)
+	s = s/100
+	v = v/100
+
+	h=h+math.pi/2--because the r vector is up
+	local r, g, b = 1, 1, 1
+	local r1, r2 =  0          ,  1.0
+	local g1, g2 = -math.sqrt( 3 )/2, -0.5
+	local b1, b2 =  math.sqrt( 3 )/2, -0.5
+	local h1, h2 = math.cos( h ), math.sin( h )
+
+	--hue
+	r = h1*r1 + h2*r2
+	g = h1*g1 + h2*g2
+	b = h1*b1 + h2*b2
+	--saturation
+	r = r + (1-r)*s
+	g = g + (1-g)*s
+	b = b + (1-b)*s
+
+	local ret_table = {r * v * 255, g * v * 255, b * v * 255}
+	if hsv[4] ~= nil then table.insert(ret_table, (a or 1) * 255) end
+	return ret_table
+end
+
 function clamp(x, min, max)
 	if x < min then return min end
 	if x > max then return max end

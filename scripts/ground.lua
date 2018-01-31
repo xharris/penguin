@@ -26,7 +26,7 @@ function Ground:update(dt)
 
 		-- add gravity to images
 		table.forEach(self.img_frags, function(f, frag)
-			frag.random_g = randRange(2,7)
+			frag.random_g = randRange(5,8)
 			frag.gravity = 0
 		end)
 	end

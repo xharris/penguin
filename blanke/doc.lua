@@ -281,6 +281,9 @@ num width, height 			-- width/height including scaling
 
 -- methods
 draw()
+tileX()						-- draw function that tiles image horizontally
+tileY()						-- draw function that tiles image vertically
+tile()						-- draw function that tiles image horiz and vert
 setWidth(width)
 setHeight(height)
 setSize(width, height)
@@ -584,6 +587,7 @@ Util
 -- lone methods
 bool ifndef(var, default)
 num[3] hex2rgb(hex)
+num[3] hsv2rgb({h,s,v})			-- h: degrees, s: 0-100, v: 0-100
 
 num decimal_places(num)			-- number of dec places in float
 num clamp(x, min, max)

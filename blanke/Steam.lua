@@ -1,3 +1,5 @@
+steamworks = nil
+
 Steam = Class{
 	appid = "480",
 	_initialized = false,
@@ -17,7 +19,7 @@ Steam = Class{
 			Steam._initialized = true
 
 			ffi = require('ffi')
-			blanke_require('extra.steamworks.steamworks')
+			steamworks = blanke_require('extra.steamworks.steamworks')
 		end
 	end,
 }

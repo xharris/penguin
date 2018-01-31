@@ -19,6 +19,13 @@ Net = {
     _timer = 0,
 
     init = function(address, port)
+        require "socket"
+
+        local s = socket.udp()
+        s:setpeername("74.125.115.104",80)
+        local ip, _ = s:getsockname()
+        Net.ip = ip
+
         Net.address = ifndef(address, "localhost") 
         Net.port = ifndef(port, Net.port)     
         Net.is_init = true
@@ -330,6 +337,14 @@ Net = {
         else
             return table.len(Net._objects) + 1          -- plus one for self
         end
+    end,
+
+    save = function(data)
+
+    end,
+
+    load = function(data)
+
     end,
 
     draw = function(classname)

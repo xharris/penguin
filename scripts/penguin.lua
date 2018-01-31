@@ -38,8 +38,9 @@ function Penguin:init()
 	self.sprite_yoffset = -16
 	self.sprite_xoffset = -16
 
-	self:addShape("main", "rectangle", {0, 0, 32, 32})		-- rectangle of whole players body
-	self:addShape("jump_box", "rectangle", {4, 30, 24, 2})	-- rectangle at players feet
+	local top, left, right = 7, 0, 14
+	self:addShape("main", "rectangle", {left, top, 32-(left+right), 32-(top*2)})		-- rectangle of whole players body
+	self:addShape("jump_box", "rectangle", {left, 30, 32-(left+right), 2})	-- rectangle at players feet
 	self:setMainShape("main")
 
 	--self.show_debug = true
@@ -66,9 +67,11 @@ function Penguin:update(dt)
 	self.onCollision["jump_box"] = function(other, sep_vector)
         if not behind_wall and other.tag == "ground" and sep_vector.y < 0 then
             -- floor collision
+            if not self.can_jump then
+				self:netSync("vspeed","x","y")
+            end
             self.can_jump = true 
         	self:collisionStopY()
-			self:netSync("vspeed","x","y")
         end 
     end
 

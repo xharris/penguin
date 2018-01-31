@@ -19,6 +19,7 @@ Net = {
     
     address = "localhost",
     port = 12345,
+    bytes = 0,
 
     _clients = {},
     _rooms = {},   
@@ -90,6 +91,9 @@ Net = {
     end,
 
     _onReceive = function(data, id)
+        -- calculate # of bytes used
+        Net.bytes = Net.bytes + bytes(data)
+
         if data:starts('{') then
             data = json.decode(data)
         elseif data:starts('"') then
@@ -133,4 +137,53 @@ end
 
 function love.draw()
     Debug.draw()
+
+    love.graphics.setColor(255,0,0,255)
+    love.graphics.setFont(Debug._font)
+
+    local byte_str = tostring(Net.bytes)
+    for b, term in ipairs({'B','KB','MB','GB'}) do
+        local floor = (math.pow(1000, b-1)-1)
+        if Net.bytes > floor then
+            byte_str = tostring(math.round(Net.bytes / floor), 0) .. " " .. term
+        end
+    end
+
+    love.graphics.printf("ESTIMATES\ndata in: "..byte_str, 0, Debug.margin, love.graphics:getWidth()-Debug.margin, "right") 
+end
+
+function bytes(str)
+    bit_total = 0
+    str_len = string.len(str)
+
+    for s = 1, str_len do
+        local char = str:byte(s,s)
+
+        bit_total = bit_total + 1
+    end
+
+    return bit_total
+
+    --[[
+        function getUTF8Length(str) {
+      var len = 0;
+      for (var i = 0; i < str.length; i++) {
+        var code = str.charCodeAt(i);
+        if (code <= 0x7f) {
+          len += 1;
+        } else if (code <= 0x7ff) {
+          len += 2;
+        } else if (code >= 0xd800 && code <= 0xdfff) {
+          // Surrogate pair: These take 4 bytes in UTF-8 and 2 chars in UCS-2
+          // (Assume next char is the other [valid] half and just skip it)
+          len += 4; i++;
+        } else if (code < 0xffff) {
+          len += 3;
+        } else {
+          len += 4;
+        }
+      }
+      return len;
+    }
+    ]]
 end
