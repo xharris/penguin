@@ -164,10 +164,25 @@ BlankE = {
 				BlankE.old_love[fn_name] = love[fn_name]
 				-- inject BlankE callback
 				love[fn_name] = function(...)
-					if BlankE.old_love[fn_name] then BlankE.old_love[fn_name](...) end			
-					return func(...)
+					if BlankE.old_love[fn_name] then
+						BlankE.old_love[fn_name](...)
+					end			
+					--if fn_name ~= 'quit' then
+					--	return BlankE.try(func, ...)
+					--else
+						return func(...)
+					--end
 				end
 			end
+		end
+	end,
+
+	try = function(func, ...) -- doesnt rly work
+		if func then
+			local result, chunk
+			result, chunk = pcall(func, ...)
+			if not result then BlankE.errhand(chunk) end
+			return result, chunk
 		end
 	end,
 

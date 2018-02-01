@@ -52,7 +52,7 @@ function Penguin:update(dt)
 		behind_wall = false
 	end
 	self.onCollision["main"] = function(other, sep_vector)	-- other: other hitbox in collision
-		if not behind_wall and other.tag == "ground" then
+		if other.tag == "ground" then
 			-- ceiling collision
             if sep_vector.y > 0 and self.vspeed < 0 then
                 self:collisionStopY()
@@ -65,7 +65,7 @@ function Penguin:update(dt)
 	end
 
 	self.onCollision["jump_box"] = function(other, sep_vector)
-        if not behind_wall and other.tag == "ground" and sep_vector.y < 0 then
+        if other.tag == "ground" and sep_vector.y < 0 then
             -- floor collision
             if not self.can_jump then
 				self:netSync("vspeed","x","y")

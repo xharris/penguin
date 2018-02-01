@@ -77,6 +77,10 @@ Entity = Class{
     	_destroyGameObject('entity', self)
     end,
 
+    onNetAdd = function(self)
+    	self:netSync("x","y")
+    end,
+
     _update = function(self, dt)
     	if self._destroyed then return end
 

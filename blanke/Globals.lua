@@ -6,11 +6,18 @@ window_width = 0
 window_height = 0
 game_time = 0
 
+CONF = {
+    window = {
+        width = 800,
+        height = 600
+    }
+}
+
 function updateGlobals(dt)
 	game_time = game_time + dt
 
 	local width, height = love.window.fromPixels(love.graphics.getDimensions())
-	local x_scale, y_scale = width / 800, height / 600
+	local x_scale, y_scale = width / CONF.window.width, height / CONF.window.height
 	local new_width, new_height = width, height
 
 	BlankE.scale_mode = 'scale'
@@ -38,16 +45,14 @@ function updateGlobals(dt)
 		end
 	end
 
+	if BlankE.scale_mode == 'center' then
+		BlankE.scale_x = 1
+		BlankE.scale_y = 1
+	end
+
 	mouse_x, mouse_y = BlankE.scaledMouse(love.mouse.getX() + ifndef(Effect._mouse_offx, 0), love.mouse.getY() + ifndef(Effect._mouse_offy, 0))
 	game_width = new_width
 	game_height = new_height
 	window_width = width / BlankE.scale_x
 	window_height = height / BlankE.scale_y
 end
-
-CONF = {
-    window = {
-        width = 800,
-        height = 600
-    }
-}

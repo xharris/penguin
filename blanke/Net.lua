@@ -77,12 +77,14 @@ Net = {
     end,
 
     disconnect = function()
+        if not Net.client then return end
         if Net.client then Net.client:disconnect() end
         Net.is_init = false
         Net.is_connected = false
         Net.client = nil
 
         Net.removeClientObjects()
+        Debug.log("disconnected")
 
         return Net
     end,
@@ -309,6 +311,8 @@ Net = {
 
         obj:netSync()
 
+        if obj.onNetAdd then obj:onNetAdd() end
+
         return Net
     end,
 
@@ -322,6 +326,7 @@ Net = {
                 }
             })
             obj:netSync()
+            if obj.onNetAdd then obj:onNetAdd() end
         end
     end,
 

@@ -47,6 +47,7 @@ Draw = Class{
 			r, g, b, a = unpack(r)
 		end
 		Draw.color = Draw._parseColorArgs(r,g,b,a)
+		love.graphics.setColor(Draw.color)
 		return Draw
 	end,
 
@@ -57,7 +58,6 @@ Draw = Class{
 
 	_draw = function(func)
 		love.graphics.push('all')
-		love.graphics.setColor(Draw.color)
 		func()
 		love.graphics.pop()
 		return Draw

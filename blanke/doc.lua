@@ -40,10 +40,12 @@ function state0:enter()
 	main_camera = View()
 end
 
--- possible init options
-BlankE.init(first_state) -- first_state: can be string or object
+-- properties
+scale_mode = 'scale'		-- can be: stretch, scale, center
 
-BlankE.drawOutsideWindow()	-- can be overridden to make custom drawings outside of game frame
+-- methods
+init(first_state) -- first_state: can be string or object
+drawOutsideWindow()	-- can be overridden to make custom drawings outside of game frame
 
 --[[
  ###  #######     #     ####### ###### 
@@ -658,6 +660,9 @@ addObject(obj)						-- add an object to be synced with other clients
 
 > this method adds the netSync method to the object
 	obj:netSync("x","y","sprite_color") 	-- used to manually sync an object (use wisely)
+
+> when the object is added to the network an optional function is called
+	obj:onNetAdd()
 ]]
 
 -- callback methods
