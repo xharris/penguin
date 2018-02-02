@@ -32,6 +32,7 @@ View = Class{
         self.scale_y = 1
 		self.zoom_speed = .5
 		self.zoom_type = 'none'
+		self.zoom_callback = nil
         
         self.port_x = 0
         self.port_y = 0
@@ -109,13 +110,14 @@ View = Class{
 		self.angle = angle
 	end,
 
-	zoom = function(self, scale_x, scale_y)
+	zoom = function(self, scale_x, scale_y, callback)
         if not scale_y then
             scale_y = scale_x
         end
         
         self.scale_x = scale_x
 		self.scale_y = scale_y
+		self.zoom_callback = callback
 	end,
     
     mousePosition = function(self)
@@ -216,7 +218,7 @@ View = Class{
 
 		-- zoom
         if self.scale_y == nil then
-            self.scale_y = scale.scale_x
+            self.scale_y = self.scale_x
         end
         
 		if self.camera.scale_x ~= self.scale_x or self.camera.scale_y ~= self.scale_y then
@@ -229,9 +231,18 @@ View = Class{
 			elseif self.zoom_type == 'damped' then
 				new_zoom_x = lerp(self.camera.scale_x, self.scale_x, self.zoom_speed, self._dt)
 				new_zoom_y = lerp(self.camera.scale_y, self.scale_y, self.zoom_speed, self._dt)
-
+				local abs = math.abs
+				if abs(self.scale_x - new_zoom_x) < .01 and abs(self.scale_y - new_zoom_y) < .01 then
+					new_zoom_x = self.scale_x
+					new_zoom_y = self.scale_y
+				end
 			end
 			self.camera:zoomTo(new_zoom_x, new_zoom_y)
+
+			if new_zoom_x == self.scale_x and new_zoom_y == self.scale_y and self.zoom_callback then
+				self.zoom_callback()
+				self.zoom_callback = nil
+			end
 		end
         
         -- shake

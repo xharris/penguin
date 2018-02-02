@@ -33,6 +33,7 @@ function Penguin:init()
 
 	self.gravity = 30
 	self.can_jump = true
+	self.walk_speed = 180
 	-- random shade of blue
 	self.color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"}))
 	self.sprite_yoffset = -16
@@ -79,11 +80,11 @@ function Penguin:update(dt)
 	if not self.net_object then
 		self.hspeed = 0
 		if k_right() then
-			self.hspeed = 180
+			self.hspeed = self.walk_speed
 			self.sprite_speed = 2
 		end
 		if k_left() then
-			self.hspeed = -180
+			self.hspeed = -self.walk_speed
 			self.sprite_speed = 2
 		end
 

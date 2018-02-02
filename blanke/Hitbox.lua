@@ -48,9 +48,13 @@ Hitbox = Class{
 			local color = ifndef(Hitbox._color[self.HCShape.tag], self.color)
 			color[4] = 255/3
 
-			love.graphics.push("all")
-				love.graphics.setColor(color)
+			local x, y = self:center()
+
+			love.graphics.push()
+			love.graphics.setColor(color)
+			BlankE.drawToScale(function()
 				self.HCShape:draw(ifndef(mode, 'fill'))
+			end)
 			love.graphics.pop()
 		end
 	end,

@@ -30,6 +30,7 @@ function updateGlobals(dt)
 		new_width, new_height = width / x_scale, height / y_scale
 	end
 
+	-- TODO: doesn't work if window is greater than desired width/height
 	if BlankE.scale_mode == 'scale' then
 		local scale = math.min(x_scale, y_scale)
 		new_width, new_height = width / x_scale, height / y_scale

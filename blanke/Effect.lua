@@ -176,7 +176,7 @@ EffectManager = Class{
 	new = function (options)
 		local new_eff = {}
 		new_eff.string = ifndef(options.shader,'')
-		new_eff.params = options.params
+		new_eff.params = ifndef(options.params, {})
 		new_eff.extra_draw = options.draw
 		new_eff.warp_effect = ifndef(options.warp_effect, false)
 
@@ -205,7 +205,7 @@ EffectManager = Class{
 
 		-- add helper funcs
 		if new_eff.string == '' then
-			for var_name, value in pairs(options.params) do
+			for var_name, value in pairs(new_eff.params) do
 				var_filler = var_filler .. var_name .. ';'
 				if type(value) == 'table' then
 					new_eff.string = new_eff.string .. "uniform vec"..tostring(#value).." "..var_name..";\n"
@@ -254,7 +254,7 @@ float random(vec2 scale, vec2 gl_FragCoord, float seed) {
 				new_eff.string, r = new_eff.string:gsub(old, new)
 			end
 		end
-		--print(new_eff.string)
+		if options.name == 'igloo_shader' then print(new_eff.string) end
 		_effects[options.name] = new_eff
 		--return Effect(options.name)
 	end,

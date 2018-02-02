@@ -54,6 +54,7 @@ Tween = Class{
 	update = function(self, dt)
 		if self._go then
 			self._dt = self._dt + dt
+			print(self._dt)
 			if self._multival then
 				for key, value in pairs(self.value) do
 					local start_value = self._start_val[key]

@@ -1,11 +1,72 @@
+local anim_tick = 0
+local anim_end = 60
+local anim_speed = 100
+local big_size = 0
+local transitioning = false
+local anim_type = ''
+local prev_state = ''
+
 StateManager = {
 	_stack = {},
 	_callbacks = {'update','draw'},
 
 	iterateStateStack = function(func, ...)
+
 		for s, state in ipairs(StateManager._stack) do
-			if state[func] ~= nil and not state._off then
+			if state.background_color then
+				Draw.setColor(state.background_color)
+				Draw.rect('fill', 0,0,game_width,game_height)
+				Draw.resetColor()
+			end
+
+			local enter = "greater"
+			local exit = "equal"
+
+			if func == 'draw' and state._transitioning then	
+				if anim_type == 'circle-out' then
+					love.graphics.stencil(function()
+				   		love.graphics.circle("fill", game_width / 2, game_height /2, lerp(0, big_size, anim_tick / anim_end))
+					end, "replace", 1)
+				end
+
+				if anim_type == 'circle-in' then
+					love.graphics.stencil(function()
+				   		love.graphics.circle("fill", game_width / 2, game_height /2, big_size - lerp(0, big_size, anim_tick / anim_end))
+					end, "replace", 1)
+					enter = "equal"
+					exit = "greater"
+				end
+
+				-- draw state being entered
+				love.graphics.setStencilTest(enter, 0)
+				state:draw()
+
+				-- draw state being left
+				local other_state = state._other_state
+				love.graphics.setStencilTest(exit, 0)
+				other_state:draw()
+
+				love.graphics.setStencilTest()
+
+			elseif state[func] ~= nil and (not state._off or not (func == 'update' and state._transitioning)) then
 				state[func](...)
+			end
+		end
+
+		-- update
+		if func == 'update' and transitioning then
+			local dt = ...
+
+			if anim_tick > anim_end then
+				anim_type = ''
+				anim_tick = 0
+				big_size = 0
+
+				local curr_state = StateManager.current()
+				curr_state._transitioning = false
+				transitioning = false
+			else
+				anim_tick = anim_tick + anim_speed * dt
 			end
 		end
 	end,
@@ -29,11 +90,24 @@ StateManager = {
 		if new_state.enter then new_state:enter() end
 	end,
 
-	pop = function()
-		local state = StateManager._stack[#StateManager._stack]
+	pop = function(state_name)
+		local state = nil
+		local index = 1
+		if state_name then
+			for s, obj_state in ipairs(StateManager._stack[#StateManager._stack]) do
+				if obj_state.classname == state_name then
+					index = s
+					state = obj_state
+				end
+			end
+		else
+			state = StateManager._stack[#StateManager._stack]
+		end
+
+		state._transitioning = false
 		state:_leave()
 
-		table.remove(StateManager._stack)
+		table.remove(StateManager._stack, index)
 	end,
 
 	verifyState = function(state)
@@ -47,6 +121,8 @@ StateManager = {
 	end,
 
 	switch = function(name)
+		prev_state = State.current().classname
+
 		-- verify state name
 		local new_state = StateManager.verifyState(name)
 
@@ -62,12 +138,40 @@ StateManager = {
 		end
 	end,
 
+	transition = function(next_state, animation)
+		if not next_state._transitioning then
+			anim_type = animation
+			local curr_state = State.current()
+
+			transitioning = true
+			next_state._transitioning = true
+			next_state._other_state = curr_state
+
+			anim_tick = 0
+
+			if anim_type == "circle-out" or anim_type == "circle-in" then
+				big_size = math.sqrt((game_width*game_width) + (game_height*game_height))
+			end
+
+			prev_state = curr_state.classname
+			StateManager.switch(next_state)
+		end
+	end,
+
 	current = function()
-		return StateManager._stack[#StateManager._stack]
+		if #StateManager._stack == 1 then
+			return StateManager._stack[#StateManager._stack]
+		else
+			return StateManager._stack
+		end
 	end
 }
 
 State = Class{
+	transition = function(...)
+		StateManager.transition(...)
+	end,
+
 	switch = function(name)
 		StateManager.switch(name)
 	end,
@@ -77,7 +181,7 @@ State = Class{
 	end,
 
 	_enter = function(self)
-		if self.enter then self:enter() end
+		if self.enter then self:enter(prev_state) end
 		self._off = false
 	end,
 

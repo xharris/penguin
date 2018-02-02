@@ -252,7 +252,7 @@ snapTo(Entity)				-- camera immediately moves to entity
 moveToPosition(x,y)			
 snapToPosition(x,y)
 rotateTo(angle)
-zoom(scale_x, [scale_y])	-- if only scale_x is supplied, scale_y is set to scale_x
+zoom(scale_x, [scale_y, callback])	-- if only scale_x is supplied, scale_y is set to scale_x, callback runs after zoom animation finishes
 mousePosition()				-- get mouse position relative to world
 shake(x, [y])				-- sets shake_x
 squeezeH(amt)				-- similar to scale_x except view is centered

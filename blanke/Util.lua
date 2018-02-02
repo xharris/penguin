@@ -48,7 +48,7 @@ function clamp(x, min, max)
 end
 
 function lerp(a,b,amt)
-	return a + (b-a) * amt
+	return a + amt * (b-a)
 end
 
 function ifndef(var_check, default)

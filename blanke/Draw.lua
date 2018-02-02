@@ -51,6 +51,18 @@ Draw = Class{
 		return Draw
 	end,
 
+	translate = function(x, y)
+		love.graphics.translate(x, y)
+	end,
+
+	scale = function(x_scale, y_scale)
+		love.graphics.scale(x_scale, ifndef(y_scale, x_scale))
+	end,
+
+	reset = function()
+		love.graphics.origin()
+	end,
+
 	resetColor = function()
 		Draw.color = Draw.reset_color
 		return Draw

@@ -7,5 +7,5 @@ function love.load()
 
 	Asset.add('scripts/')
 
-    BlankE.init('playState')
+    BlankE.init('menuState')
 end

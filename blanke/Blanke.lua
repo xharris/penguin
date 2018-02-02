@@ -79,6 +79,7 @@ Hitbox 	= blanke_require('Hitbox')
 Entity 	= blanke_require('Entity')
 Map 	= blanke_require('Map')
 View 	= blanke_require('View')
+Mask 	= blanke_require('Mask')
 Effect 	= blanke_require('Effect')
 Dialog 	= blanke_require('Dialog')
 Tween 	= blanke_require('Tween')
@@ -448,24 +449,34 @@ BlankE = {
 		end
 	end,
 
+	drawToScale = function(func)
+		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
+		love.graphics.translate(BlankE._offset_x, BlankE._offset_y)	
+
+		love.graphics.push()
+		func()
+		love.graphics.pop()
+	end,
+
 	draw = function()
 		love.graphics.push()
-		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
-		love.graphics.translate(BlankE._offset_x, BlankE._offset_y)
+		BlankE.drawOutsideWindow()
 
-		love.graphics.stencil(function()
-	   		love.graphics.rectangle("fill",0, 0, game_width, game_height)
-		end, "replace", 1)	
+
+		love.graphics.setScissor(
+			BlankE._offset_x * BlankE.scale_x,
+			BlankE._offset_y * BlankE.scale_y,
+			game_width,
+			game_height
+		)
 
 		-- draw game
-	 	love.graphics.setStencilTest("equal", 1)
-		StateManager.iterateStateStack('draw')
-		love.graphics.translate(-BlankE._offset_x, -BlankE._offset_y)
+		BlankE.drawToScale(function()
+			StateManager.iterateStateStack('draw')
+		end)
 
-		-- draw border outside of window
-	 	love.graphics.setStencilTest("equal", 0)
-		BlankE.drawOutsideWindow()
-	 	love.graphics.setStencilTest()
+		love.graphics.setScissor()
+
 
 		love.graphics.pop()
 		

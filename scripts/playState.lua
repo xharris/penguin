@@ -17,7 +17,10 @@ in_igloo_menu = false
 
 -- Called every time when entering the state.
 function playState:enter(previous)
+
+img_penguin = Image('penguin')
 	Draw.setBackgroundColor('white2')
+	water_color = hsv2rgb({212,70,100})
 
 	bg_sky = Image('background')
 	bg_sky.color = {0,0,210}
@@ -26,6 +29,7 @@ function playState:enter(previous)
 
 	main_view = View()
 	main_view.zoom_type = 'damped'
+	main_view.zoom_speed = .05
 	lvl_objects = Group()
 
 	k_join = Input('j')
@@ -66,12 +70,24 @@ function playState:update(dt)
 	-- player wants to enter igloo
 	if main_penguin.x < img_igloo_front.x + img_igloo_front.width - 20 then
 		Net.disconnect()
-		in_igloo_menu = true
-		main_view:zoom(3)
+
+		-- zoom in on igloo
+		main_view:follow()
+		main_view:moveToPosition(img_igloo_front.x + 90.25, img_igloo_front.y + img_igloo_front.height - (main_penguin.sprite_height / 2))
+
+		-- transition to menu when zoomed in all the way
+		if not in_igloo_menu then
+			in_igloo_menu = true
+			main_view:zoom(3, 3, function()
+				State.transition(menuState, "circle-out")
+			end)
+		end
+
 	else
 		Net.join()
 		in_igloo_menu = false
 		main_view:zoom(1)
+		main_view:follow(main_penguin)
 	end
 end
 
@@ -101,6 +117,11 @@ function playState:draw()
 		if not wall then img_igloo_front:draw() end
 	end)
 	Draw.text(tostring(Net.getPopulation())..' / '..tostring(game_start_population), game_width/2, 50)
+
+	-- draw igloo menu
+	if in_igloo_menu then
+
+	end
 
 	Debug.draw()
 end	
@@ -150,7 +171,7 @@ function loadLevel(name)
 				img_igloo_front.x, img_igloo_front.y = pos_x, pos_y + tile_snap - img_igloo_front.height
 				img_igloo_back.x, img_igloo_back.y = pos_x, pos_y + tile_snap - img_igloo_front.height
 
-				table.insert(penguin_spawn, {img_igloo_front.x + (img_igloo_front.width/2) - 16, pos_y})
+				table.insert(penguin_spawn, {img_igloo_front.x + img_igloo_front.width - 18, pos_y})-- + (img_igloo_front.width/2) - 16, pos_y})
 			end
 		end
 	end
@@ -159,7 +180,6 @@ end
 function spawnPlayer()
 	main_penguin = Penguin()
 	main_penguin.x, main_penguin.y = unpack(penguin_spawn[1])
-	main_view:follow(main_penguin)
 	main_penguin:netSync('x','y')
 end
 
