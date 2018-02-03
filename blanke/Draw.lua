@@ -59,8 +59,9 @@ Draw = Class{
 		love.graphics.scale(x_scale, ifndef(y_scale, x_scale))
 	end,
 
-	reset = function()
+	reset = function(dont_scale)
 		love.graphics.origin()
+		if not dont_scale then BlankE.reapplyScaling() end
 	end,
 
 	resetColor = function()

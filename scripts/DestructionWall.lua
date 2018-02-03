@@ -11,6 +11,6 @@ function DestructionWall:update(dt)
 end
 
 function DestructionWall:draw()
-	Draw.setColor('black')
-	Draw.line(self.x, main_view.top, self.x, main_view.bottom)
+	--Draw.setColor('black')
+	--Draw.line(self.x, main_view.top, self.x, main_view.bottom)
 end

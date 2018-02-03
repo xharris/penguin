@@ -52,9 +52,7 @@ Hitbox = Class{
 
 			love.graphics.push()
 			love.graphics.setColor(color)
-			BlankE.drawToScale(function()
-				self.HCShape:draw(ifndef(mode, 'fill'))
-			end)
+			self.HCShape:draw(ifndef(mode, 'fill'))
 			love.graphics.pop()
 		end
 	end,

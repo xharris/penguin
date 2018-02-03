@@ -1,6 +1,6 @@
 BlankE.addClassType("Ground", "Entity")
 
-function Ground:init(x, y, frame)
+function Ground:init(x, y, frame, g_type)
 	self:addShape("ground", "rectangle", {tile_snap, tile_snap, tile_snap, tile_snap}, "ground")
 	
 	self.x = x
@@ -16,6 +16,11 @@ function Ground:init(x, y, frame)
 
 	self.img_tile.x = self.x
 	self.img_tile.y = self.y
+
+	if g_type == "cracked" then
+		self.img_ground_crack = Image("ground_crack")
+		self.img_tile:combine(self.img_ground_crack)
+	end
 	
 	self.fragged = false
 end

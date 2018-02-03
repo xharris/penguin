@@ -293,8 +293,9 @@ tile([w, h])					-- draw function that tiles image horiz and vert
 setWidth(width)
 setHeight(height)
 setSize(width, height)
-chop(width, height)			-- chops image into smaller images of width/height
-crop(x, y, w, h)			-- obvious
+combine(other_image)			-- paste 'other_image' onto current image
+Image[] chop(width, height)		-- chops image into smaller images of width/height
+Image crop(x, y, w, h)			-- obvious
 
 --[[
 ##### #   #  ####  #     # ####### 
@@ -601,8 +602,8 @@ num lerp(a, b, amt)
 num randRange(min, max)
 num sinusoidal(min, max, speed, start_offset)
 
-num bitmask4(map_table, tile_value, x, y)	-- https://gamedevelopment.tutsplus.com/tutorials/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673
-num bitmask8(map_table, tile_value, x, y)	-- untested
+num bitmask4(map_table, tile_value(s), x, y)	-- https://gamedevelopment.tutsplus.com/tutorials/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673
+num bitmask8(map_table, tile_value(s), x, y)	-- untested
 
 str basename(str)
 str dirname(str)
@@ -623,7 +624,7 @@ hasValue(t, value)
 copy(t)
 toNumber(t)
 len(t)
-forEach(t, func)
+forEach(t, func)								-- will return a value and end early if 'func' returns a value
 
 -- MATH
 round(num, places)

@@ -93,12 +93,17 @@ function extname(str)
 	end
 end
 
-function bitmask4(t, tile_val, x, y)
+function bitmask4(tile_map, tile_val, x, y)
+	local tile_vals = {}
+	if type(tile_val) == "string" then table.insert(tile_vals, tile_val)
+	else tile_vals = tile_val end
+
 	function checkTile(x2, y2)
-		if x2 > 0 and y2 > 0 and y2 <= #t and x2 <= #t[y2] and t[y2][x2] == tile_val then
-			return 1
-		end
-		return 0
+		return table.forEach(tile_vals, function(t, tile)
+			if x2 > 0 and y2 > 0 and y2 <= #tile_map and x2 <= #tile_map[y2] and tile_map[y2][x2] == tile then
+				return 1
+			end
+		end) or 0
 	end
 
 	local result = 
@@ -110,12 +115,17 @@ function bitmask4(t, tile_val, x, y)
 	return result
 end
 
-function bitmask8(t, tile_val, x, y)
-	function checkTile(x, y)
-		if x > 0 and y > 0 and x <= #t and y <= #t[x] and t[x][y] == tile_val then
-			return 1
-		end
-		return 0
+function bitmask8(tile_map, tile_val, x, y)
+	local tile_vals = {}
+	if type(tile_val) == "string" then table.insert(tile_vals, tile_val)
+	else tile_vals = tile_val end
+
+	function checkTile(x2, y2)
+		return table.forEach(tile_vals, function(t, tile)
+			if x2 > 0 and y2 > 0 and y2 <= #tile_map and x2 <= #tile_map[y2] and tile_map[y2][x2] == tile then
+				return 1
+			end
+		end) or 0
 	end
 
 	local result = 1*checkTile(x-1,y-1) + 
@@ -219,7 +229,8 @@ function table.forEach(t, func)
 	if table_len == 0 then table_len = table.len(t) end
 	
 	for i=1,table_len do
-		func(i,t[i])
+		local ret_val = func(i,t[i])
+		if ret_val then return ret_val end
 	end
 end
 

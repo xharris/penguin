@@ -136,6 +136,26 @@ Image = Class{
 		return Image(dest_image_data)
 	end,
 
+	combine = function(self, other_image)
+		local src_image_data = other_image.image:getData()
+		local dest_image_data = self.image:getData()
+
+		dest_image_data:mapPixel(function(x,y,r,g,b,a)
+			local sr, sg, sb, sa = src_image_data:getPixel(x,y)
+			if sa > 0 then
+				return
+					(r * a / 255) + (sr * sa * (255 - a) / (255*255)),
+					(g * a / 255) + (sg * sa * (255 - a) / (255*255)),
+					(b * a / 255) + (sb * sa * (255 - a) / (255*255)),
+					a + (sa * (255 - a) / 255)
+			else
+				return r, g, b, a
+			end
+		end)
+
+		self.image = love.graphics.newImage(dest_image_data)
+	end,
+
 	frame = function(self, f, width, height, space_x, space_y)
 		space_x = ifndef(space_x, 0)
 		space_y = ifndef(space_y, 0)

@@ -3,15 +3,18 @@ BlankE.addClassType("FragImage", "Entity")
 frag_images = {}
 
 function FragImage:init(image)
-	self.img_frags = image:chop(image.width/5,image.width/5)
+	if image.alpha == 0 then self:destroy() else
 
-	-- add gravity to images
-	table.forEach(self.img_frags, function(f, frag)
-		frag.random_g = randRange(7,10)
-		frag.gravity = 0
-	end)
+		self.img_frags = image:chop(image.width/randRange(3,5),image.width/randRange(3,5))
 
-	table.insert(frag_images, self)
+		-- add gravity to images
+		table.forEach(self.img_frags, function(f, frag)
+			frag.random_g = randRange(7,10)
+			frag.gravity = 0
+		end)
+
+		table.insert(frag_images, self)
+	end
 end
 
 function FragImage:update(dt)	
@@ -22,7 +25,7 @@ function FragImage:update(dt)
 		if wall_x > frag.x + (frag.random_g*5) then
 			frag.gravity = frag.gravity + frag.random_g
 			frag.y = frag.y + frag.gravity * dt
-			frag.x = frag.x - 12 * dt
+			frag.x = frag.x - 15 * dt
 		end
 	end)
 end

@@ -1,5 +1,6 @@
 BlankE.addClassType("playState", "State")
 
+play_mode = 'single'
 game_start_population = 3
 
 local k_join, k_leave, k_destruct
@@ -15,10 +16,13 @@ img_igloo_front = nil
 img_igloo_back = nil
 in_igloo_menu = false
 
+igloo_enter_x = 0
+destruct_ready_x = 0
+
 -- Called every time when entering the state.
 function playState:enter(previous)
 
-img_penguin = Image('penguin')
+	img_penguin = Image('penguin')
 	Draw.setBackgroundColor('white2')
 	water_color = hsv2rgb({212,70,100})
 
@@ -26,6 +30,8 @@ img_penguin = Image('penguin')
 	bg_sky.color = {0,0,210}
 	img_igloo_front = Image("igloo_front")
 	img_igloo_back = Image("igloo_back")
+
+	igloo_enter_x = img_igloo_front.x + img_igloo_front.width - 25
 
 	main_view = View()
 	main_view.zoom_type = 'damped'
@@ -43,7 +49,7 @@ end
 
 local send_ready = false
 function playState:update(dt)
-	bg_sky.color = hsv2rgb({195,37,100})--hsv2rgb({186,39,88})
+	bg_sky.color = hsv2rgb({195,37,100})-- hsv2rgb({186,39,88})
 	water_color = hsv2rgb({212,70,100})
 	
 	if k_join() then
@@ -55,12 +61,18 @@ function playState:update(dt)
 	end
 
 	-- enough players to start game
-	if Net.getPopulation() >= game_start_population and not send_ready and not in_igloo_menu then
-		send_ready = true
-		Net.send({
-			type="netevent",
-			event="spawn_wall"
-		})
+	if main_penguin.x > destruct_ready_x and not in_igloo_menu then
+		if play_mode == 'online' and Net.getPopulation() >= game_start_population and not send_ready then
+			send_ready = true
+			Net.send({
+				type="netevent",
+				event="spawn_wall"
+			})
+		end
+
+		if play_mode == 'single' then
+			startDestruction()
+		end
 	end
 
 	if k_leave() and Net.is_connected then
@@ -68,7 +80,7 @@ function playState:update(dt)
 	end
 
 	-- player wants to enter igloo
-	if main_penguin.x < img_igloo_front.x + img_igloo_front.width - 20 then
+	if main_penguin.x < igloo_enter_x then
 		Net.disconnect()
 
 		-- zoom in on igloo
@@ -76,7 +88,7 @@ function playState:update(dt)
 		main_view:moveToPosition(img_igloo_front.x + 90.25, img_igloo_front.y + img_igloo_front.height - (main_penguin.sprite_height / 2))
 
 		-- transition to menu when zoomed in all the way
-		if not in_igloo_menu then
+		if not in_igloo_menu and not wall then
 			in_igloo_menu = true
 			main_view:zoom(3, 3, function()
 				State.transition(menuState, "circle-out")
@@ -116,7 +128,9 @@ function playState:draw()
 		end)
 		if not wall then img_igloo_front:draw() end
 	end)
-	Draw.text(tostring(Net.getPopulation())..' / '..tostring(game_start_population), game_width/2, 50)
+	local ready = ''
+	if main_penguin.x > destruct_ready_x then ready = '\nREADY!' end
+	Draw.text(tostring(Net.getPopulation())..' / '..tostring(game_start_population)..ready, game_width/2, 50)
 
 	-- draw igloo menu
 	if in_igloo_menu then
@@ -127,7 +141,7 @@ function playState:draw()
 end	
 
 function loadLevel(name)
-	lvl_string = Asset.file('test')
+	lvl_string = Asset.file('spawn')
 	lvl_length = lvl_string:len()
 	lvl_array = {{}}
 
@@ -135,6 +149,11 @@ function loadLevel(name)
 	local max_x, max_y = 1, 1
 	for c = 0, lvl_length do
 		char = lvl_string:at(c)
+
+		if char == '-' then
+
+		end
+
 		if c < lvl_length then
 			if char == '\n' then
 				x = 1
@@ -156,8 +175,13 @@ function loadLevel(name)
 			pos_x, pos_y = x*tile_snap-tile_snap, y*tile_snap-tile_snap
 
 			-- ice ground			
-			if char == 'g' then
-				lvl_objects:add(Ground(pos_x,pos_y,bitmask4(lvl_array, 'g', x, y)))
+			if char == 'g' or char == 'c' then
+				local ground_type = ''
+				if char == 'c' then 
+					destruct_ready_x = pos_x
+					ground_type = "cracked"
+				end
+				lvl_objects:add(Ground(pos_x,pos_y,bitmask4(lvl_array, {'g','c'}, x, y),ground_type))
 			end
 
 			-- invisible block
@@ -171,7 +195,12 @@ function loadLevel(name)
 				img_igloo_front.x, img_igloo_front.y = pos_x, pos_y + tile_snap - img_igloo_front.height
 				img_igloo_back.x, img_igloo_back.y = pos_x, pos_y + tile_snap - img_igloo_front.height
 
-				table.insert(penguin_spawn, {img_igloo_front.x + img_igloo_front.width - 18, pos_y})-- + (img_igloo_front.width/2) - 16, pos_y})
+				table.insert(penguin_spawn, {igloo_enter_x + 5, pos_y})-- + (img_igloo_front.width/2) - 16, pos_y})
+			end
+
+			-- past this point to be ready
+			if char == 'd' then
+				destruct_ready_x = pos_x
 			end
 		end
 	end
@@ -187,6 +216,9 @@ function startDestruction()
 	if not wall then
 		wall = DestructionWall()
 		wall.x = -32
+
+		FragImage(img_igloo_front)
+		FragImage(img_igloo_back)
 	end
 end
 

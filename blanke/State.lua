@@ -5,6 +5,7 @@ local big_size = 0
 local transitioning = false
 local anim_type = ''
 local prev_state = ''
+local transition_queue = {}
 
 StateManager = {
 	_stack = {},
@@ -65,6 +66,11 @@ StateManager = {
 				local curr_state = StateManager.current()
 				curr_state._transitioning = false
 				transitioning = false
+
+				if #transition_queue > 0 then
+					local next_transition = table.remove(transition_queue)
+					State.transition(next_transition[1], next_transition[2])
+				end
 			else
 				anim_tick = anim_tick + anim_speed * dt
 			end
@@ -139,7 +145,8 @@ StateManager = {
 	end,
 
 	transition = function(next_state, animation)
-		if not next_state._transitioning then
+		if not next_state._transitioning and not transitioning then
+			Debug.log('go to '..next_state.classname)
 			anim_type = animation
 			local curr_state = State.current()
 
@@ -155,6 +162,8 @@ StateManager = {
 
 			prev_state = curr_state.classname
 			StateManager.switch(next_state)
+		else
+			table.insert(transition_queue, 1, {next_state, animation})
 		end
 	end,
 

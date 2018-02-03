@@ -27,7 +27,7 @@ Input = Class{
             self.in_mouse[input] = false
         
         else -- regular keyboard input
-            self.in_key[input] = false
+            self.in_key[input] = love.keyboard.isDown(ifndef(btn, input))
             
         end
         return self

@@ -456,29 +456,37 @@ BlankE = {
 		love.graphics.push()
 		func()
 		love.graphics.pop()
+
+		love.graphics.translate(-BlankE._offset_x, BlankE._offset_y)
+		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
+	end,
+
+	reapplyScaling = function()
+		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
+		love.graphics.translate(BlankE._offset_x, BlankE._offset_y)	
 	end,
 
 	draw = function()
+		-- draw borders
 		love.graphics.push()
+		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
 		BlankE.drawOutsideWindow()
-
-
-		love.graphics.setScissor(
-			BlankE._offset_x * BlankE.scale_x,
-			BlankE._offset_y * BlankE.scale_y,
-			game_width,
-			game_height
-		)
-
-		-- draw game
-		BlankE.drawToScale(function()
-			StateManager.iterateStateStack('draw')
-		end)
-
-		love.graphics.setScissor()
-
-
 		love.graphics.pop()
+
+		BlankE.drawToScale(function()
+
+			love.graphics.setScissor(
+				BlankE._offset_x * BlankE.scale_x,
+				BlankE._offset_y * BlankE.scale_y,
+				game_width * BlankE.scale_x,
+				game_height * BlankE.scale_y
+			)
+
+			-- draw game
+			StateManager.iterateStateStack('draw')
+
+			love.graphics.setScissor()
+		end)
 		
         -- disable any scenes that aren't being actively drawn
         local active_scenes = 0
