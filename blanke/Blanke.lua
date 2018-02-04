@@ -114,6 +114,7 @@ BlankE = {
 	_snap_mouse_y = 0,
 	_mouse_x = 0,
 	_mouse_y = 0,
+	game_canvas = nil,
 
 	-- window scaling
 	_offset_x = 0,
@@ -137,10 +138,13 @@ BlankE = {
 				BlankE.injectCallbacks()
 			end
 		end
+
 		Scene._fake_view = View()
 	    uuid.randomseed(love.timer.getTime()*10000)
 	    updateGlobals(0)
 		Asset.loadScripts()
+		BlankE.game_canvas = love.graphics.newCanvas(800,600)
+		BlankE.game_canvas:setFilter("nearest")
 
 	    -- figure out the first state to run
 	    if BlankE.first_state and not first_state then
@@ -488,6 +492,17 @@ BlankE = {
 			love.graphics.setScissor()
 		end)
 		
+
+		--[[
+		love.graphics.setCanvas(BlankE.game_canvas)
+
+		BlankE.drawOutsideWindow()
+		StateManager.iterateStateStack('draw')
+
+		love.graphics.setCanvas()
+		love.graphics.draw(BlankE.game_canvas, 0, 0, 0, BlankE.scale_x, BlankE.scale_yl)
+		]]
+
         -- disable any scenes that aren't being actively drawn
         local active_scenes = 0
 		_iterateGameGroup('scene', function(scene)

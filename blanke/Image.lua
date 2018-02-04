@@ -18,6 +18,7 @@ Image = Class{
 		end
 		
 		self.image:setWrap("clampzero","clampzero")
+		self.image:setFilter("nearest")
 
 		self.quad = nil
 		self.x = 0
