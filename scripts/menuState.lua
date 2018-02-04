@@ -1,7 +1,6 @@
 BlankE.addClassType("menuState", "State")
 
 ent_igloo = nil
-main_penguin = nil
 
 k_pause = nil
 

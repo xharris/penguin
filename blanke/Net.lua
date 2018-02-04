@@ -78,7 +78,8 @@ Net = {
 
     disconnect = function()
         if not Net.client then return end
-        if Net.client then Net.client:disconnect() end
+
+        Net.client:disconnect()
         Net.is_init = false
         Net.is_connected = false
         Net.client = nil
@@ -180,11 +181,13 @@ Net = {
             Net._objects[clientid] = ifndef(Net._objects[clientid], {})
             if not Net._objects[clientid][obj.net_uuid] then
                 Net._objects[clientid][obj.net_uuid] = _G[obj.classname]()
-                Net._objects[clientid][obj.net_uuid].net_object = true
+                local obj_ref = Net._objects[clientid][obj.net_uuid]
+                obj_ref.net_object = true
                 
                 if obj.values then
                     for var, val in pairs(obj.values) do
-                        Net._objects[clientid][obj.net_uuid][var] = val
+                        obj_ref[var] = val
+                        if obj_ref.onNetUpdate and obj_ref.net_object then obj_ref:onNetUpdate(var, val) end
                     end
                 end
             end
@@ -197,6 +200,7 @@ Net = {
                 if obj then
                     for var, val in pairs(data.info.values) do
                         obj[var] = val
+                        if obj.onNetUpdate and obj.net_object then obj:onNetUpdate(var, val) end
                     end
                 end
             end
@@ -239,6 +243,7 @@ Net = {
         for id, objects in pairs(removable) do
             for uuid, obj in pairs(objects) do
                 if not obj.keep_on_disconnect then
+                    Debug.log('remove '..obj.classname)
                     obj:destroy()
                 end
             end

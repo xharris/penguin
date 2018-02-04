@@ -1,26 +1,25 @@
 BlankE.addClassType("playState", "State")
 
-play_mode = 'single'
+play_mode = 'online'
 game_start_population = 3
 
 local k_join, k_leave, k_destruct
-wall = nil
-main_view = nil
-main_penguin = nil
-lvl_objects = nil
-last_lvl_end = {0,0}
-penguin_spawn = {}
-tile_snap = 32
-
-img_igloo_front = nil
-img_igloo_back = nil
-in_igloo_menu = false
-
-igloo_enter_x = 0
-destruct_ready_x = 0
 
 -- Called every time when entering the state.
 function playState:enter(previous)
+	wall = nil
+	main_penguin = nil
+	next_lvl_start = {0,0}
+	last_lvl_end = {0,0}
+	penguin_spawn = {}
+	tile_snap = 32
+
+	img_igloo_front = nil
+	img_igloo_back = nil
+	in_igloo_menu = false
+
+	igloo_enter_x = 0
+	destruct_ready_x = 0
 
 	img_penguin = Image('penguin')
 	Draw.setBackgroundColor('white2')
@@ -42,9 +41,11 @@ function playState:enter(previous)
 	k_leave = Input('d')
 	k_destruct = Input('k')
 
-	loadLevel("test")
+	loadLevel("spawn")
 	-- add player's penguin
 	spawnPlayer()
+	loadLevel("level1")
+	loadLevel("level1")
 end
 
 local send_ready = false
@@ -71,7 +72,7 @@ function playState:update(dt)
 		end
 
 		if play_mode == 'single' then
-			startDestruction()
+			--startDestruction()
 		end
 	end
 
@@ -141,20 +142,31 @@ function playState:draw()
 end	
 
 function loadLevel(name)
-	lvl_string = Asset.file('spawn')
-	lvl_length = lvl_string:len()
-	lvl_array = {{}}
+	local lvl_string = Asset.file(name)
+	local lvl_length = lvl_string:len()
+	local lvl_array = {{}}
+
+	local lvl_start = {lvl_string:match("start (%d+),(%d+)")}
+	local lvl_end = {lvl_string:match("end (%d+),(%d+)")}
+	local offset_x = (last_lvl_end[1])*tile_snap
+	local offset_y = (last_lvl_end[2])*tile_snap
+	if name ~= 'spawn' then
+		offset_x = (last_lvl_end[1] - lvl_start[1])*tile_snap
+		offset_y = (last_lvl_end[2] - lvl_start[2])*tile_snap
+	end
+
+	Debug.log(name,offset_x, offset_y)
+
+	last_lvl_end[1] = last_lvl_end[1] + (lvl_end[1] - lvl_start[1])
+	last_lvl_end[2] = last_lvl_end[2] + (lvl_end[2] - lvl_start[2])
 
 	local x, y = 1, 1
 	local max_x, max_y = 1, 1
+	local reading_map = false
 	for c = 0, lvl_length do
 		char = lvl_string:at(c)
 
-		if char == '-' then
-
-		end
-
-		if c < lvl_length then
+		if c < lvl_length and reading_map then
 			if char == '\n' then
 				x = 1
 				y = y + 1
@@ -166,13 +178,17 @@ function loadLevel(name)
 			if x > max_x then max_x = x end
 			if y > max_y then max_y = y end
 		end
+
+		if char == "-" then
+			reading_map = true
+		end
 	end
 
 	local pos_x, pos_y = 0, 0
 	for y = 1, max_y do
 		for x = 1, max_x do
 			char = lvl_array[y][x]
-			pos_x, pos_y = x*tile_snap-tile_snap, y*tile_snap-tile_snap
+			pos_x, pos_y = x*tile_snap-tile_snap+offset_x, y*tile_snap-tile_snap+offset_y
 
 			-- ice ground			
 			if char == 'g' or char == 'c' then
@@ -195,7 +211,7 @@ function loadLevel(name)
 				img_igloo_front.x, img_igloo_front.y = pos_x, pos_y + tile_snap - img_igloo_front.height
 				img_igloo_back.x, img_igloo_back.y = pos_x, pos_y + tile_snap - img_igloo_front.height
 
-				table.insert(penguin_spawn, {igloo_enter_x + 5, pos_y})-- + (img_igloo_front.width/2) - 16, pos_y})
+				penguin_spawn = {igloo_enter_x + 5, pos_y}
 			end
 
 			-- past this point to be ready
@@ -207,8 +223,8 @@ function loadLevel(name)
 end
 
 function spawnPlayer()
-	main_penguin = Penguin()
-	main_penguin.x, main_penguin.y = unpack(penguin_spawn[1])
+	main_penguin = Penguin(true)
+	main_penguin.x, main_penguin.y = unpack(penguin_spawn)
 	main_penguin:netSync('x','y')
 end
 

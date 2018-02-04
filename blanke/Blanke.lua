@@ -182,7 +182,7 @@ BlankE = {
 		if func then
 			local result, chunk
 			result, chunk = pcall(func, ...)
-			if not result then BlankE.errhand(chunk) end
+			if not result then error(chunk) end
 			return result, chunk
 		end
 	end,
@@ -575,6 +575,7 @@ BlankE = {
 	end,
 
 	errhand = function(msg)
+		print(msg)
 		if BlankE._ide_mode then IDE.errd = true; end
 		local trace = debug.traceback()
 	 

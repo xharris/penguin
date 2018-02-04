@@ -625,6 +625,7 @@ copy(t)
 toNumber(t)
 len(t)
 forEach(t, func)								-- will return a value and end early if 'func' returns a value
+random(t)
 
 -- MATH
 round(num, places)
@@ -655,16 +656,18 @@ send(data)
 getPopulation()						-- get number of clients connected (including self)
 draw([classname])					-- draw objects synced through network, or just a certain class
 addObject(obj)						-- add an object to be synced with other clients
---[[
-> optional obj properties
+
+-- vvv objects added with 'addObject' are given the follow properties and methods vvv
+-- optional obj properties
 	net_sync_vars = {}				-- table containing the names of properties to sync ('x','hspeed','walk_speed','sprite_xcsale')
 
-> this method adds the netSync method to the object
+-- this method adds the netSync method to the object
 	obj:netSync("x","y","sprite_color") 	-- used to manually sync an object (use wisely)
-
-> when the object is added to the network an optional function is called
+-- when the object is added to the network an optional function is called
 	obj:onNetAdd()
-]]
+-- every time a variable is updated, this is called. Only called for net_objects, not the client objects
+	obj:onNetUpdate(var_name, value)
+
 
 -- callback methods
 onReady()

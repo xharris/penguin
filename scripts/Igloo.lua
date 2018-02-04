@@ -18,7 +18,7 @@ function Igloo:init(from_outside)
 
 	self:addShape("wall", "rectangle", {225, 0, 33, 600}, "ground")
 
-	self.main_penguin = Penguin()
+	self.main_penguin = Penguin(true)
 	self.main_penguin.x = self.img_igloo_back.x + (self.img_igloo_back.width / 2)
 	self.main_penguin.y = 284
 	if from_outside then

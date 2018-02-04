@@ -14,30 +14,48 @@ Asset = Class{
 		end
 	end,
 
-	add = function(path)
-		local asset_ext = extname(path)
-		local asset_name = ''
-		if asset_ext then 
-			asset_name = basename(path):gsub('.'..asset_ext,'')
-		else
-			asset_name = basename(path)
+	list = function(asset_type, prefix)
+		local ret_table = {}
+
+		for name, info in pairs(Asset.info[asset_type]) do
+			if prefix then
+				if name:starts(prefix..'/') then
+					table.insert(ret_table, name:sub(#(prefix..'/')+1))
+				end
+			else
+				table.insert(ret_table, name)
+			end
 		end
 
+		return ret_table
+	end,
+
+	add = function(path, prefix)
 		-- FOLDER
 		if path:ends('/') then
 			local files = love.filesystem.getDirectoryItems(path:sub(0,-1))
 			for f, file in ipairs(files) do
-				Asset.add(path..file)
+				Asset.add(path..file, prefix)
 			end
 			return
+		end
+
+		if prefix then prefix = prefix..'/' else prefix = '' end
+		
+		local asset_ext = extname(path)
+		local asset_name = ''
+		if asset_ext then 
+			asset_name = prefix..basename(path):gsub('.'..asset_ext,'')
+		else
+			asset_name = prefix..basename(path)
 		end
 
 		-- SCRIPT
 		if path:ends('.lua') then
 			Asset.info['script'] = ifndef(Asset.info['script'], {})
 
-			local result, chunk
-			result, chunk = pcall(love.filesystem.load, path)
+			local result, chunk = BlankE.try(love.filesystem.load, path)
+
 			Asset.info['script'][asset_name] = {
 				path = path,
 				category = 'script',

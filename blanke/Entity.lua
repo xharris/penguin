@@ -290,6 +290,10 @@ Entity = Class{
 				sprite:gotoFrame(self.sprite_frame)
 			end
 
+			if self.sprite_speed ~= 0 then
+				self.sprite_frame = sprite.position
+			end
+
 			-- draw current sprite (image, x,y, angle, sx, sy, ox, oy, kx, ky) s=scale, o=origin, k=shear
 			local img = self._images[sprite_index]
 			Draw.push('all')

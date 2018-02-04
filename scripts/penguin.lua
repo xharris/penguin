@@ -1,10 +1,11 @@
 BlankE.addClassType("Penguin", "Entity")
 
 local k_right, k_left, k_up
+local main_penguin_info = nil
 
-Penguin.net_sync_vars = {'color','hspeed','sprite_speed','sprite_xscale'}
+Penguin.net_sync_vars = {'color','hspeed','sprite_speed','sprite_xscale','color','hat'}
 
-function Penguin:init()
+function Penguin:init(is_main_player)
 	self:addAnimation{
 		name = 'stand',
 		image = 'penguin',
@@ -35,7 +36,6 @@ function Penguin:init()
 	self.can_jump = true
 	self.walk_speed = 180
 	-- random shade of blue
-	self.color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"}))
 	self.sprite_yoffset = -16
 	self.sprite_xoffset = -16
 
@@ -44,7 +44,29 @@ function Penguin:init()
 	self:addShape("jump_box", "rectangle", {left, 30, 32-(left+right), 2})	-- rectangle at players feet
 	self:setMainShape("main")
 
-	--self.show_debug = true
+	-- initalize player's penguin attributes
+	if is_main_player and not main_penguin_info then
+		local random_hat_name = table.random(Asset.list('image','hat'))
+
+		main_penguin_info = {
+			color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"})),
+			hat = random_hat_name
+		}
+	end
+
+	self.color = main_penguin_info.color
+	self:setHat(main_penguin_info.hat)
+end
+
+function Penguin:setHat(name)
+	self.hat = name
+	self.img_hat = Image('hat/'..name)
+end
+
+function Penguin:onNetUpdate(name, value)
+	if name == 'hat' then
+		self:setHat(value)
+	end
 end
 
 function Penguin:update(dt)
@@ -108,6 +130,7 @@ function Penguin:update(dt)
 	if self.hspeed == 0 then
 		self.sprite_frame = 1
 	end
+
 end
 
 function Penguin:jump()
@@ -123,4 +146,17 @@ function Penguin:draw()
 	self:drawSprite('walk')
 	self.sprite_color = self.color
 	self:drawSprite('walk_fill')
+
+	-- draw penguin hat
+	if self.img_hat then
+		self.img_hat.x = self.x
+		self.img_hat.y = self.y
+		if self.sprite_frame == 2 then
+			self.img_hat.y = self.y-1
+		end
+		self.img_hat.xoffset = -self.sprite_xoffset
+		self.img_hat.yoffset = -self.sprite_yoffset
+		self.img_hat.xscale = self.sprite_xscale
+		self.img_hat:draw()
+	end
 end
