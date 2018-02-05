@@ -121,8 +121,7 @@ postDraw()
 
 -- regular methods
 debugSprite()						-- green: call during drawing (ex. state:draw)
-debugCollision()					-- red: shows hitboxes
-setSpriteIndex(str index)			
+debugCollision()					-- red: shows hitboxes		
 addAnimation{...}					--[[
 	name = str
 	image = str 					-- name of asset (ex. bob_stand, bob_walk)

@@ -50,7 +50,7 @@ function Penguin:init(is_main_player)
 
 		main_penguin_info = {
 			color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"})),
-			hat = random_hat_name
+			hat = 'polar'--random_hat_name
 		}
 	end
 
@@ -61,6 +61,19 @@ end
 function Penguin:setHat(name)
 	self.hat = name
 	self.img_hat = Image('hat/'..name)
+	local animated = (self.img_hat.width > 32)
+
+	if animated then
+		self:addAnimation{
+			name = 'hat',
+			image = 'hat/'..name,
+			frames = {'1-2',1},
+			frame_size = {32,32},
+			speed = 0
+		}
+	else
+
+	end
 end
 
 function Penguin:onNetUpdate(name, value)
@@ -142,21 +155,18 @@ function Penguin:jump()
 end
 
 function Penguin:draw()
-	self.sprite_color = Draw.white
+	self.sprite['walk'].color = Draw.white
+	self.sprite['walk_fill'].color = self.color
+
 	self:drawSprite('walk')
-	self.sprite_color = self.color
 	self:drawSprite('walk_fill')
 
 	-- draw penguin hat
-	if self.img_hat then
+	--[[
 		self.img_hat.x = self.x
 		self.img_hat.y = self.y
 		if self.sprite_frame == 2 then
 			self.img_hat.y = self.y-1
 		end
-		self.img_hat.xoffset = -self.sprite_xoffset
-		self.img_hat.yoffset = -self.sprite_yoffset
-		self.img_hat.xscale = self.sprite_xscale
-		self.img_hat:draw()
-	end
+	]]
 end

@@ -100,6 +100,4 @@ Draw = Class{
     text 	= function(...) return Draw.callDrawFunc('print', {...}) end,
 }
 
-love.graphics.setDefaultFilter("nearest","nearest")
-
 return Draw

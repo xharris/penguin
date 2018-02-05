@@ -158,6 +158,9 @@ BlankE = {
 		end
 		State.switch(first_state)  
 		BlankE._is_init = true
+
+		love.graphics.setDefaultFilter("nearest","nearest")
+
 		print("BlankE initialized")
 	end,
 
@@ -491,17 +494,6 @@ BlankE = {
 
 			love.graphics.setScissor()
 		end)
-		
-
-		--[[
-		love.graphics.setCanvas(BlankE.game_canvas)
-
-		BlankE.drawOutsideWindow()
-		StateManager.iterateStateStack('draw')
-
-		love.graphics.setCanvas()
-		love.graphics.draw(BlankE.game_canvas, 0, 0, 0, BlankE.scale_x, BlankE.scale_yl)
-		]]
 
         -- disable any scenes that aren't being actively drawn
         local active_scenes = 0

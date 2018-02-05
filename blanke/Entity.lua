@@ -12,7 +12,6 @@ Entity = Class{
     	self._destroyed = false
 	    self._images = {}		
 		self._sprites = {} 			-- is actually the animations
-		self.sprite = nil			-- currently active animation
 		self.pause = false
 		self.show_debug = false
 		self.scene_show_debug = false
@@ -27,12 +26,12 @@ Entity = Class{
 
 		-- sprite/animation variables
 		self._call_sprite_update = {}
-		self._sprite_prev = '' 		-- previously used sprite
-		self.sprite_index = ''		-- string index of the current sprite
-		self.sprite_width = 0		-- readonly
-		self.sprite_height = 0		-- readonly
-		self.sprite_angle = 0		-- angle of sprite in degrees
-		self.sprite_xscale = 1	
+		self._sprite_prev = '' 				-- previously used sprite
+		self.sprite = {}
+		self.sprite_width = anim_w		
+		self.sprite_height = anim_h		
+		self.sprite_angle = 0		
+		self.sprite_xscale = 1
 		self.sprite_yscale = 1
 		self.sprite_xoffset = 0
 		self.sprite_yoffset = 0
@@ -84,25 +83,22 @@ Entity = Class{
     _update = function(self, dt)
     	if self._destroyed then return end
 
-		-- bootstrap sprite:goToFrame()
-		if not self.sprite then
-			self.sprite = {}
-			self.sprite.gotoFrame = function() end
-		end
-
 		if self.update then
 			self:update(dt)
 		end	
     	if self._destroyed then return end -- call again in case entity is destroyed during update
 
 		if not self.pause then
-			if self.sprite ~= nil and self.sprite.update ~= nil then
-				self.sprite:update(self.sprite_speed*dt)
-			end
+			--[[
+			for sprite_name, info in pairs(self.sprite) do
+				if self.sprite ~= nil and self.sprite.update ~= nil then
+					self.sprite:update(self.sprite_speed*dt)
+				end
+			end]]
 			
 			-- clear sprite update call list
 			for sprite_name, val in pairs(self._call_sprite_update) do
-				self._sprites[sprite_name]:update(self.sprite_speed*dt)
+				self._sprites[sprite_name]:update(ifndef(self.sprite[sprite_name].speed, self.sprite_speed)*dt)
 				self._call_sprite_update[sprite_name] = nil
 			end
 		end
@@ -225,14 +221,16 @@ Entity = Class{
 	end,
 
 	debugSprite = function(self, sprite_index)
-		local sx = -self.sprite_xoffset
-		local sy = -self.sprite_yoffset
+		local info = self:getSpriteInfo(sprite_index)
+
+		local sx = -info.xoffset
+		local sy = -info.yoffset
 
 		love.graphics.push("all")
 		love.graphics.translate(self.x, self.y)
-		love.graphics.rotate(math.rad(self.sprite_angle))
-		love.graphics.shear(self.sprite_xshear, self.sprite_yshear)
-		love.graphics.scale(self.sprite_xscale, self.sprite_yscale)
+		love.graphics.rotate(math.rad(info.angle))
+		love.graphics.shear(info.xshear, info.yshear)
+		love.graphics.scale(info.xscale, info.yscale)
 
 		-- draw sprite outline
 		love.graphics.setColor(0,255,0,255*(2/3))
@@ -255,58 +253,53 @@ Entity = Class{
 		return self
 	end,
 
-	setSpriteIndex = function(self, index)
-		if index == '' or index == nil then
-			self.sprite_index = ''
-			self.sprite = nil
-		else
-			assert(self._sprites[index], "Animation not found: \'"..index.."\'")
-
-			self.sprite_index = index
-			self.sprite = self._sprites[self.sprite_index]
-
-			if self._sprite_prev ~= self.sprite_index then
-				self.sprite_width, self.sprite_height = self:getSpriteDims(self.sprite_index)
-				self._sprite_prev = self.sprite_index
-			end
-		end
-		return self
-	end,
-
 	getSpriteDims = function(self, sprite_index)
 		return self._sprites[sprite_index]:getDimensions()
 	end,
 
+	getSpriteInfo = function(self, sprite_index)
+		local info = table.copy(self.sprite[sprite_index])
+
+		local vars = {'width','height','angle','xscale','yscale','xoffset','yoffset','xshear','yshear','color','alpha','speed','frame'}
+		for v, var in ipairs(vars) do
+			if info[var] == nil then
+				info[var] = self['sprite_'..var]
+			end
+		end
+
+		return info
+	end,
+
 	drawSprite = function(self, sprite_index)
-		sprite_index = ifndef(sprite_index, self.sprite_index)
-		sprite = self._sprites[sprite_index]
+		local sprite = self._sprites[sprite_index]
+		local info = self:getSpriteInfo(sprite_index)
 
 		if self.show_debug or self.scene_show_debug then self:debugCollision() end
 
 		if sprite ~= nil then
 			self._call_sprite_update[sprite_index] = true
 
-			if self.sprite_speed == 0 and self.sprite_frame ~= 0 then
-				sprite:gotoFrame(self.sprite_frame)
+			if info.speed == 0 and info.frame ~= 0 then
+				sprite:gotoFrame(info.frame)
 			end
 
-			if self.sprite_speed ~= 0 then
-				self.sprite_frame = sprite.position
+			if info.speed ~= 0 then
+				info.frame = sprite.position
 			end
 
 			-- draw current sprite (image, x,y, angle, sx, sy, ox, oy, kx, ky) s=scale, o=origin, k=shear
 			local img = self._images[sprite_index]
 			Draw.push('all')
 
-			if self.show_debug or self.scene_show_debug then self:debugSprite(self.sprite_index) end
+			if self.show_debug or self.scene_show_debug then self:debugSprite(sprite_index) end
 
-			love.graphics.setColor(self.sprite_color[1], self.sprite_color[2], self.sprite_color[3], ifndef(self.sprite_color[4], self.sprite_alpha))
+			love.graphics.setColor(info.color[1], info.color[2], info.color[3], ifndef(info.color[4], info.alpha))
 			
 			-- is it an Animation or an Image
 			if sprite.update ~= nil then
-				sprite:draw(img(), self.x, self.y, math.rad(self.sprite_angle), self.sprite_xscale, self.sprite_yscale, -self.sprite_xoffset, -self.sprite_yoffset, self.sprite_xshear, self.sprite_yshear)
+				sprite:draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
 			elseif img then
-				love.graphics.draw(img(), self.x, self.y, math.rad(self.sprite_angle), self.sprite_xscale, self.sprite_yscale, -self.sprite_xoffset, -self.sprite_yoffset, self.sprite_xshear, self.sprite_yshear)
+				love.graphics.draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
 			end
 			Draw.pop()
 		else
@@ -322,12 +315,20 @@ Entity = Class{
 			self:preDraw()
 		end
 
-		self:drawSprite()
+		for name, info in pairs(self.sprite) do
+			self:drawSprite(name)
+		end
 
 		if self.postDraw then
 			self:postDraw()
 		end
 		return self
+	end,
+
+	animationMatch = function(self, src, dest)
+		for key, val in pairs(self.sprite[src]) do
+			self.sprite[dest][key] = val
+		end
 	end,
 
 	addAnimation = function(self, args)
@@ -349,7 +350,12 @@ Entity = Class{
 			local sprite = anim8.newAnimation(grid(unpack(frames)), speed)
 
 			self._images[ani_name] = image
-			self._sprites[ani_name] = sprite	
+			self._sprites[ani_name] = sprite
+
+			local anim_w, anim_h = self._sprites[ani_name]:getDimensions()
+
+			self.sprite[ani_name] = {}
+
 		end
 		return self
 	end,
@@ -402,8 +408,10 @@ Entity = Class{
     
     -- checks if the point is inside the current sprite
     contains_point = function(self, x, y)
-        if x >= self.x and y >= self.y and x < self.x + self.sprite_width and  y < self.y + self.sprite_height then
-            return true
+    	for name, sprite in pairs(self.sprite) do
+	        if x >= self.x and y >= self.y and x < self.x + sprite.width and  y < self.y + sprite.height then
+    	        return true
+        	end
         end
         return false
     end
