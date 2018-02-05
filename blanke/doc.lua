@@ -40,6 +40,11 @@ function state0:enter()
 	main_camera = View()
 end
 
+-- 2) destroying an object does not remove references to it
+-- 
+my_entity:destroy()
+my_entity = nil 		-- GOOD: no longer referencing it
+
 -- properties
 scale_mode = 'scale'		-- can be: stretch, scale, center
 
@@ -350,6 +355,10 @@ k_left = Input('left', 'a')
 if k_left() then
 	hspeed = -125
 end
+
+-- class methods
+setGlobal(name, ...)		-- global input
+global(name)				-- access global input. returns output similar to 'k_left()' in example
 
 --[[
  ###    ##### ###### #   #  ###### 

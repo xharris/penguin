@@ -27,9 +27,7 @@ Entity = Class{
 		-- sprite/animation variables
 		self._call_sprite_update = {}
 		self._sprite_prev = '' 				-- previously used sprite
-		self.sprite = {}
-		self.sprite_width = anim_w		
-		self.sprite_height = anim_h		
+		self.sprite = {}	
 		self.sprite_angle = 0		
 		self.sprite_xscale = 1
 		self.sprite_yscale = 1
@@ -58,6 +56,7 @@ Entity = Class{
 		-- collision
 		self.shapes = {}
 		self._main_shape = ''
+		self.collisions = {}
 		self.collisionStop = nil
 		self.collisionStopX = nil
 		self.collisionStopY = nil	
@@ -88,16 +87,15 @@ Entity = Class{
 		end	
     	if self._destroyed then return end -- call again in case entity is destroyed during update
 
-		if not self.pause then
-			--[[
-			for sprite_name, info in pairs(self.sprite) do
-				if self.sprite ~= nil and self.sprite.update ~= nil then
-					self.sprite:update(self.sprite_speed*dt)
-				end
-			end]]
-			
+		if not self.pause then			
 			-- clear sprite update call list
 			for sprite_name, val in pairs(self._call_sprite_update) do
+				--[[
+				if not self._sprites[sprite_name] then
+					self._sprites[sprite_name] = {}
+					self._sprites[sprite_name].gotoFrame = function() end
+				end]]
+
 				self._sprites[sprite_name]:update(ifndef(self.sprite[sprite_name].speed, self.sprite_speed)*dt)
 				self._call_sprite_update[sprite_name] = nil
 			end
@@ -152,6 +150,7 @@ Entity = Class{
 
 			local _main_shape = self.shapes[self._main_shape]
 			
+			self.collisions = {}
 			for name, fn in pairs(self.onCollision) do
 				-- make sure it actually exists
 				if self.shapes[name] ~= nil and self.shapes[name]._enabled then
@@ -162,7 +161,10 @@ Entity = Class{
 					    local collides, dx, dy = obj_shape:collidesWith(other)
 					    if collides then
 		                	local separating_vector = {['x']=dx, ['y']=dy}
-		                	
+
+		                	self.collisions[name] = ifndef(self.collisions[name], {})
+					    	self.collisions[name][other.tag] = separating_vector
+
 							-- collision action functions
 							self.collisionStopX = function(self)
 								for name, shape in pairs(self.shapes) do
@@ -212,6 +214,13 @@ Entity = Class{
 		return self
 	end,
 
+	hadCollision = function(self, self_name, other_name)
+		if not self.collisions[self_name] then return false end
+		for name, sep_vec in pairs(self.collisions[self_name]) do
+			if name:contains(other_name) then return true end
+		end
+	end,
+
 	getCollisions = function(self, shape_name)
 		if self.shapes[shape_name] then
 			local hc_shape = self.shapes[shape_name]:getHCShape()
@@ -258,12 +267,18 @@ Entity = Class{
 	end,
 
 	getSpriteInfo = function(self, sprite_index)
-		local info = table.copy(self.sprite[sprite_index])
+		if not self.sprite[sprite_index] then return end
+
+		local info = table.deepcopy(self.sprite[sprite_index])
 
 		local vars = {'width','height','angle','xscale','yscale','xoffset','yoffset','xshear','yshear','color','alpha','speed','frame'}
 		for v, var in ipairs(vars) do
 			if info[var] == nil then
 				info[var] = self['sprite_'..var]
+			else
+				if var == 'xoffset' or var == 'yoffset' then
+					info[var] = self['sprite_'..var] + info[var]
+				end
 			end
 		end
 
@@ -276,15 +291,19 @@ Entity = Class{
 
 		if self.show_debug or self.scene_show_debug then self:debugCollision() end
 
-		if sprite ~= nil then
+		if info and sprite then
 			self._call_sprite_update[sprite_index] = true
 
-			if info.speed == 0 and info.frame ~= 0 then
-				sprite:gotoFrame(info.frame)
+			if self.sprite_speed == 0 or info.speed == 0 then
+				if self.sprite_frame ~= 0 then
+					sprite:gotoFrame(self.sprite_frame)
+				elseif info.frame ~= 0 then
+					sprite:gotoFrame(info.frame)
+				end
 			end
 
 			if info.speed ~= 0 then
-				info.frame = sprite.position
+				self.sprite[sprite_index].frame = sprite.position
 			end
 
 			-- draw current sprite (image, x,y, angle, sx, sy, ox, oy, kx, ky) s=scale, o=origin, k=shear
@@ -296,10 +315,12 @@ Entity = Class{
 			love.graphics.setColor(info.color[1], info.color[2], info.color[3], ifndef(info.color[4], info.alpha))
 			
 			-- is it an Animation or an Image
-			if sprite.update ~= nil then
-				sprite:draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
-			elseif img then
-				love.graphics.draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
+			if img then
+				if sprite.update ~= nil then
+					sprite:draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
+				else
+					love.graphics.draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
+				end
 			end
 			Draw.pop()
 		else
@@ -354,7 +375,7 @@ Entity = Class{
 
 			local anim_w, anim_h = self._sprites[ani_name]:getDimensions()
 
-			self.sprite[ani_name] = {}
+			self.sprite[ani_name] = {width=anim_w, height=anim_h}
 
 		end
 		return self

@@ -170,7 +170,7 @@ function string:split(sep)
 	end
 end
 function string:contains(str)
-	return string.match(self, str)
+	return (string.match(self, str) ~= nil)
 end
 function string:trim()
 	return self:gsub("^%s+", ""):gsub("%s+$", "")
@@ -202,6 +202,21 @@ end
 
 function table.copy(t)
 	return {unpack(t)}
+end
+
+function table.deepcopy(t)
+	if type(t) ~= "table" then return t end
+    local meta = getmetatable(t)
+    local target = {}
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            target[k] = table.deepcopy(v)
+        else
+            target[k] = v
+        end
+    end
+    setmetatable(target, meta)
+    return target
 end
 
 function table.toNumber(t)

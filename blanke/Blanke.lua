@@ -457,15 +457,13 @@ BlankE = {
 	end,
 
 	drawToScale = function(func)
+		love.graphics.push()
 		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
 		love.graphics.translate(BlankE._offset_x, BlankE._offset_y)	
 
-		love.graphics.push()
 		func()
-		love.graphics.pop()
 
-		love.graphics.translate(-BlankE._offset_x, BlankE._offset_y)
-		love.graphics.scale(BlankE.scale_x, BlankE.scale_y)
+		love.graphics.pop()
 	end,
 
 	reapplyScaling = function()
@@ -494,6 +492,8 @@ BlankE = {
 
 			love.graphics.setScissor()
 		end)
+
+		Debug.draw()
 
         -- disable any scenes that aren't being actively drawn
         local active_scenes = 0

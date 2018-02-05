@@ -1,5 +1,5 @@
 local anim8 = {
-  _VERSION     = 'anim8 v2.3.0',
+  _VERSION     = 'anim8 v2.3.1',
   _DESCRIPTION = 'An animation library for LÖVE',
   _URL         = 'https://github.com/kikito/anim8',
   _LICENSE     = [[
@@ -213,8 +213,8 @@ local function seekFrameIndex(intervals, timer)
 
   while(low <= high) do
     i = math.floor((low + high) / 2)
-    if     timer >  intervals[i+1] then low  = i + 1
-    elseif timer <= intervals[i]   then high = i - 1
+    if     timer >= intervals[i+1] then low  = i + 1
+    elseif timer <  intervals[i]   then high = i - 1
     else
       return i
     end
@@ -242,8 +242,10 @@ function Animation:pause()
 end
 
 function Animation:gotoFrame(position)
-  self.position = position
-  self.timer = self.intervals[self.position]
+  if position > 0 and position <= #self.frames then
+    self.position = position
+    self.timer = self.intervals[self.position]
+  end
 end
 
 function Animation:pauseAtEnd()

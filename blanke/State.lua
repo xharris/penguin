@@ -146,7 +146,6 @@ StateManager = {
 
 	transition = function(next_state, animation)
 		if not next_state._transitioning and not transitioning then
-			Debug.log('go to '..next_state.classname)
 			anim_type = animation
 			local curr_state = State.current()
 

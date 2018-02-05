@@ -86,7 +86,7 @@ function playState:update(dt)
 
 		-- zoom in on igloo
 		main_view:follow()
-		main_view:moveToPosition(img_igloo_front.x + 90.25, img_igloo_front.y + img_igloo_front.height - (main_penguin.sprite_height / 2))
+		main_view:moveToPosition(img_igloo_front.x + 90.25, img_igloo_front.y + img_igloo_front.height - (main_penguin.sprite['walk'].height / 2))
 
 		-- transition to menu when zoomed in all the way
 		if not in_igloo_menu and not wall then
@@ -137,8 +137,6 @@ function playState:draw()
 	if in_igloo_menu then
 
 	end
-
-	Debug.draw()
 end	
 
 function loadLevel(name)

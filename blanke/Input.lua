@@ -1,4 +1,6 @@
 Input = Class{
+    global_keys = {},
+
 	init = function(self, ...)
         self.in_key = {}
         self.in_mouse = {}
@@ -43,6 +45,15 @@ Input = Class{
             
         end
         return self
+    end,
+
+    setGlobal = function(name, ...)
+        Input.global_keys[name] = Input(...)
+        return Input
+    end,
+
+    global = function(name)
+        return Input.global_keys[name]()
     end,
     
     addRegion = function(self, shape_type, ...)
