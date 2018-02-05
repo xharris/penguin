@@ -65,28 +65,16 @@ anim8 	= blanke_require('extra.anim8')
 HC 		= blanke_require('extra.HC')
 grease 	= blanke_require('extra.grease')
 
-Asset 	= blanke_require('Asset')
-Group 	= blanke_require('Group')
-State	= blanke_require('State')
-Input 	= blanke_require('Input')
-Timer 	= blanke_require('Timer')
-Signal	= blanke_require('Signal')
-Draw 	= blanke_require('Draw')
-Image 	= blanke_require('Image')
-Net 	= blanke_require('Net')
-Save 	= blanke_require('Save')
-Hitbox 	= blanke_require('Hitbox')
-Entity 	= blanke_require('Entity')
-Map 	= blanke_require('Map')
-View 	= blanke_require('View')
-Mask 	= blanke_require('Mask')
-Effect 	= blanke_require('Effect')
-Dialog 	= blanke_require('Dialog')
-Tween 	= blanke_require('Tween')
-Scene 	= blanke_require('Scene')
-Camera 	= blanke_require('Camera') 	-- hump.camera cuz it's so brilliant
-Canvas  = blanke_require('Canvas')
-Steam 	= blanke_require('Steam')
+local modules = love.filesystem.getDirectoryItems(blanke_path)
+local not_require = {'Blanke', 'Globals', 'Util', 'Debug', 'Class', 'doc'}
+for m, mod in ipairs(modules) do
+	if mod:ends(".lua") then
+		local name = mod:split('.')[1]
+		if not table.hasValue(not_require, name) then
+			_G[name] = blanke_require(name)
+		end
+	end
+end
 
 -- load bundled effects
 local eff_path = dirname((...):gsub('[.]','/'))..'effects'

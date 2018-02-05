@@ -98,6 +98,7 @@ Draw = Class{
     circle 	= function(...) return Draw.callDrawFunc('circle', {...}) end,
     polygon = function(...) return Draw.callDrawFunc('polygon', {...}) end,
     text 	= function(...) return Draw.callDrawFunc('print', {...}) end,
+    textf 	= function(...) return Draw.callDrawFunc('printf', {...}) end,
 }
 
 return Draw
