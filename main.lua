@@ -14,5 +14,7 @@ function love.load()
 	UI.color('window_outline', Draw.blue)
 	UI.color('element_bg', Draw.dark_blue)
 
+	BlankE.draw_debug = true
+
     BlankE.init('menuState')
 end

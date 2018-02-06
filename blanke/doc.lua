@@ -356,6 +356,9 @@ if k_left() then
 	hspeed = -125
 end
 
+-- instance properties
+bool can_repeat				-- only true once until the button is released
+
 -- class methods
 setGlobal(name, ...)		-- global input
 global(name)				-- access global input. returns output similar to 'k_left()' in example

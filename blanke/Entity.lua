@@ -271,7 +271,7 @@ Entity = Class{
 
 		local info = table.deepcopy(self.sprite[sprite_index])
 
-		local vars = {'width','height','angle','xscale','yscale','xoffset','yoffset','xshear','yshear','color','alpha','speed','frame'}
+		local vars = {'width','height','angle','xscale','yscale','xoffset','yoffset','xshear','yshear','color','alpha','speed'}
 		for v, var in ipairs(vars) do
 			if info[var] == nil then
 				info[var] = self['sprite_'..var]
@@ -294,16 +294,21 @@ Entity = Class{
 		if info and sprite then
 			self._call_sprite_update[sprite_index] = true
 
-			if self.sprite_speed == 0 or info.speed == 0 then
-				if self.sprite_frame ~= 0 then
-					sprite:gotoFrame(self.sprite_frame)
-				elseif info.frame ~= 0 then
+			local sep_frame = false
+			if self.sprite[sprite_index].frame ~= nil then
+				sep_frame = true
+			end
+
+			if info.speed == 0 then
+				if sep_frame then
 					sprite:gotoFrame(info.frame)
+				else
+					sprite:gotoFrame(self.sprite_frame)
 				end
 			end
 
-			if info.speed ~= 0 then
-				self.sprite[sprite_index].frame = sprite.position
+			if not sep_frame then
+				self.sprite_frame = sprite.position -- TODO: what about sprites with different amount of frames. does it even matter?
 			end
 
 			-- draw current sprite (image, x,y, angle, sx, sy, ox, oy, kx, ky) s=scale, o=origin, k=shear

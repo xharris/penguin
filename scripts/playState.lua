@@ -215,7 +215,7 @@ end
 function spawnPlayer()
 	main_penguin = Penguin(true)
 	main_penguin.x, main_penguin.y = unpack(penguin_spawn)
-	main_penguin:netSync('x','y')
+	main_penguin:netSync()
 end
 
 function startDestruction()
