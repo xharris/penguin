@@ -103,8 +103,14 @@ BlankE = {
 	_mouse_x = 0,
 	_mouse_y = 0,
 	game_canvas = nil,
+	font = love.graphics.newFont((blanke_path..'ProggySquare'):gsub('[.]','/')..'.ttf', 16),
 
 	-- window scaling
+	scale_mode = 'scale',
+	left = 0,
+	top = 0,
+	right = 0,
+	bottom = 0,
 	_offset_x = 0,
 	_offset_y = 0,
 	scale_x = 1,
@@ -116,7 +122,7 @@ BlankE = {
 	first_state = '',
 	_class_type = {},
 	init = function(first_state, ide_mode)
-		BlankE._ide_mode = ifndef(ide_mode, BlankE._ide_mode)
+		BlankE._ide_mode = ifndef(ide_mode, BlankE._iBde_mode)
 		View.global_drag_enable = BlankE._ide_mode
 
 		if not BlankE._callbacks_replaced then
@@ -127,12 +133,15 @@ BlankE = {
 			end
 		end
 
+		love.graphics.setDefaultFilter("nearest","nearest")
 		Scene._fake_view = View()
 	    uuid.randomseed(love.timer.getTime()*10000)
 	    updateGlobals(0)
 		Asset.loadScripts()
-		BlankE.game_canvas = love.graphics.newCanvas(800,600)
-		BlankE.game_canvas:setFilter("nearest")
+		--BlankE.game_canvas = love.graphics.newCanvas(800,600)
+		--BlankE.game_canvas:setFilter("nearest")
+
+		love.graphics.setFont(BlankE.font)
 
 	    -- figure out the first state to run
 	    if BlankE.first_state and not first_state then
@@ -146,8 +155,6 @@ BlankE = {
 		end
 		State.switch(first_state)  
 		BlankE._is_init = true
-
-		love.graphics.setDefaultFilter("nearest","nearest")
 
 		print("BlankE initialized")
 	end,
@@ -404,6 +411,7 @@ BlankE = {
 		local g_x, g_y = 0,0
 
 	    updateGlobals(dt)
+	    UI.update()
 	    BlankE._mouse_updated = false
 	    
 	    if not BlankE._is_init then return end
@@ -466,6 +474,7 @@ BlankE = {
 		BlankE.drawOutsideWindow()
 		love.graphics.pop()
 
+			
 		BlankE.drawToScale(function()
 
 			love.graphics.setScissor(
@@ -480,7 +489,7 @@ BlankE = {
 
 			love.graphics.setScissor()
 		end)
-
+		
 		Debug.draw()
 
         -- disable any scenes that aren't being actively drawn
@@ -506,8 +515,8 @@ BlankE = {
 	end,
 
 	scaledMouse = function(x, y) 
-		x = x / BlankE.scale_x - BlankE._offset_x  
-		y = y / BlankE.scale_y - BlankE._offset_y 
+		x = x / BlankE.scale_x - BlankE._offset_y  
+		y = y / BlankE.scale_y - BlankE._offset_x 
 
 		if x < 0 then x = 0 end
 		if y < 0 then y = 0 end

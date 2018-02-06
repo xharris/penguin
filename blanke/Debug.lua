@@ -9,13 +9,13 @@ Debug = {
         for i_line, line in ipairs(Debug.lines) do
             love.graphics.push()
             local alpha = 255
-            local y = (i_line-1)*Debug._font:getHeight()
+            local y = BlankE.top + (i_line-1)*Debug._font:getHeight()
             if y > love.graphics:getHeight()/2 then
                 alpha = 255 - ((y-love.graphics:getHeight()/2)/(love.graphics:getHeight()/2)*255)
             end
             love.graphics.setColor(255,0,0,alpha)
             love.graphics.setFont(Debug._font)
-            love.graphics.print(line, Debug.margin, y+Debug.margin)
+            love.graphics.print(line, BlankE.left + Debug.margin, y+Debug.margin)
             love.graphics.pop()
         end
         love.graphics.setColor(255,255,255,255)

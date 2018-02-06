@@ -3,6 +3,9 @@ BlankE.addClassType("Penguin", "Entity")
 local k_right, k_left, k_up
 
 Penguin.main_penguin_info = nil
+Penguin.hats = Asset.list('image','hat')
+table.insert(Penguin.hats, 'none')
+
 Penguin.net_sync_vars = {'color','hspeed','sprite_speed','sprite_xscale','color','hat'}
 
 function Penguin:init(is_main_player)
@@ -50,7 +53,7 @@ function Penguin:init(is_main_player)
 
 		Penguin.main_penguin_info = {
 			color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"})),
-			hat = nil
+			hat = "None"
 		}
 	end
 
@@ -60,6 +63,10 @@ end
 
 function Penguin:setHat(name)
 	self.hat = name
+
+	if name == "none" and self.sprite['hat'] then
+		self.sprite['hat'].alpha = 0
+	end
 
 	if Image.exists('hat/'..tostring(name)) then
 		self.img_hat = Image('hat/'..name)

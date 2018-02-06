@@ -71,7 +71,5 @@ function Igloo:draw()
 
 	if self.ent_closet then self.ent_closet:draw() end
 
-	UI.window("label", 20, 20, 100, 100)
-	UI.spinbox("hat", {"top", "polar", "pan"}, "polar")
 	--self:debugCollision()
 end

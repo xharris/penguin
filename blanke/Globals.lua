@@ -20,13 +20,11 @@ function updateGlobals(dt)
 	local x_scale, y_scale = width / CONF.window.width, height / CONF.window.height
 	local new_width, new_height = width, height
 
-	BlankE.scale_mode = 'scale'
-
 	if BlankE.scale_mode == 'stretch' then
 		BlankE.scale_x = x_scale
 		BlankE.scale_y = y_scale
-		BlankE._offset_x = 0
-		BlankE._offset_y = 0
+		BlankE.left = 0
+		BlankE.top = 0
 		new_width, new_height = width / x_scale, height / y_scale
 	end
 
@@ -46,6 +44,22 @@ function updateGlobals(dt)
 		end
 	end
 
+	-- not working yet
+	if BlankE.scale_mode == 'fit' then
+		local scale = (math.max(x_scale, y_scale))
+		new_width, new_height = width / x_scale, height / y_scale
+
+		BlankE.scale_x = scale
+		BlankE.scale_y = scale
+		BlankE._offset_x = 0
+		BlankE._offset_y = 0
+		if x_scale < y_scale then
+			BlankE._offset_x = -math.abs((width / scale / 2) - (new_width / 2))
+		else
+			BlankE._offset_y = -math.abs((height / scale / 2) - (new_height / 2))
+		end
+	end
+
 	if BlankE.scale_mode == 'center' then
 		BlankE.scale_x = 1
 		BlankE.scale_y = 1
@@ -56,4 +70,12 @@ function updateGlobals(dt)
 	game_height = new_height
 	window_width = width / BlankE.scale_x
 	window_height = height / BlankE.scale_y
+
+	BlankE.right = game_width
+	BlankE.bottom = game_height
+	BlankE.left = math.abs(BlankE._offset_x) * BlankE.scale_x
+	BlankE.top = math.abs(BlankE._offset_y) * BlankE.scale_y
+
+	if BlankE.right > window_width then BlankE.right = window_width	end
+	if BlankE.bottom > window_height then BlankE.bottom = window_height end
 end

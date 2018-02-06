@@ -11,17 +11,22 @@ function OutfitMenu:init(penguin_ref)
 	self.old_hat = Penguin.main_penguin_info.hat
 	self.old_color = Penguin.main_penguin_info.color
 
-	self.menu_highlight = 1
-end
-
-function OutfitMenu:update(dt)
-	if self.menu_highlight == 3 and Input.global('confirm') then
-		Penguin.main_penguin_info.hat = "top"
-		self.penguin:setHat("top")
-	end
+	self.show_menu = true
 end
 
 function OutfitMenu:draw()
-	Draw.setColor('white')
-	Draw.rect("fill", self.x - 50, self.y + 20, 100, 100)
+	if self.show_menu then
+		UI.window("label", self.x - 50, self.y + 20, 100, 100)
+		local status_hat, new_hat = UI.spinbox("hat", Penguin.hats, Penguin.main_penguin_info.hat)
+		if status_hat then 
+			Penguin.main_penguin_info.hat = new_hat
+			self.penguin:setHat(new_hat)
+		end
+		UI.spinbox("color", {"blue", "red"}, "blue")
+		if UI.button("OK") then
+			self.show_menu = false
+			self.penguin.pause = false
+			self:destroy()
+		end
+	end
 end

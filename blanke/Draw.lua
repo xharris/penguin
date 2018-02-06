@@ -6,12 +6,14 @@ Draw = Class{
 	pink = {233,30,99,255},
 	purple = {103,58,183,255},
 	indigo = {63,81,181,255},
+	baby_blue = {128,216,255,255},
 	blue = {33,150,243,255},
+	dark_blue = {13,71,161,255},
 	green = {76,175,80,255},
 	yellow = {255,235,59,255},
 	orange = {255,193,7,255},
 	brown = {121,85,72,255},
-	grey = {158,158,158,255},
+	gray = {158,158,158,255},
 	black = {0,0,0,255},
 	white = {255,255,255,255},
 	black2 = {33,33,33,255},	-- but not actually black
@@ -90,6 +92,8 @@ Draw = Class{
     pop = function()
     	love.graphics.pop()
     end,
+
+    setLineWidth = love.graphics.setLineWidth,
     
     point   = function(...) return Draw.callDrawFunc('points', {...}) end,
     points 	= function(...) return Draw.callDrawFunc('points', {...}) end,

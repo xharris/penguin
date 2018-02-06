@@ -14,6 +14,8 @@ Input = Class{
         self.pressed = false
         self.released = false
 
+        self.can_repeat = true
+
 		-- store inputs
 		arg_inputs = {...}
 		for i_in, input in ipairs(arg_inputs) do
@@ -23,11 +25,13 @@ Input = Class{
         _addGameObject('input',self)
 	end,
 
-	add = function(self, input)
+	add = function(self, input, ...)
         if input:starts("mouse") or input:starts("wheel") then
             local btn = input:split(".")[2]
             self.in_mouse[input] = false
-        
+        elseif input == 'region' then
+            self:addRegion(...)
+
         else -- regular keyboard input
             self.in_key[input] = love.keyboard.isDown(ifndef(btn, input))
             
@@ -68,6 +72,7 @@ Input = Class{
     
     keyreleased = function(self, key)
         if self.in_key[key] ~= nil then self.in_key[key] = false end
+        self.pressed = false
         return self
     end,
     
@@ -90,6 +95,7 @@ Input = Class{
         if region ~= nil then
             region = false
         end
+        self.pressed = false
         return self
     end,
 
@@ -125,19 +131,21 @@ Input = Class{
     end,
 
     _isOn = function(self)
+        if not self.can_repeat and self.pressed then return false end
+
         for input, val in pairs(self.in_key) do
-            if val == true then return true end
+            if val == true then self.pressed = true; return true end
         end
         
         for input, val in pairs(self.in_mouse) do
             if input:starts("wheel") and val ~= 0 then
                 self.in_mouse[input] = 0
                 return val
-            elseif val == true then return true end
+            elseif val == true then self.pressed = true; return true end
         end
         
         for input, val in pairs(self.in_region) do
-            if val == true then return true end
+            if val == true then self.pressed = true; return true end
         end
 
         return false
