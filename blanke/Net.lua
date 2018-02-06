@@ -19,6 +19,8 @@ Net = {
     _timer = 0,
 
     init = function(address, port)
+        if Net.is_init then return end
+
         require "socket"
 
         local s = socket.udp()
@@ -54,7 +56,7 @@ Net = {
     
     -- returns "Client" object
     join = function(address, port) 
-        if Net.client then return end
+        if Net.client or Net.is_connected then return end
         if not Net.is_init then
             Net.init(address, port)
         end

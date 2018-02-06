@@ -25,7 +25,7 @@ function Igloo:init(from_outside)
 
 	-- add player and upscale its sprite
 	self.main_penguin = Penguin(true)
-	self.main_penguin.x = self.img_igloo_back.x + (self.img_igloo_back.width / 2)
+	self.main_penguin.x = igloo_left
 	self.main_penguin.y = 284
 	if from_outside then
 		self.main_penguin.x = self.igloo_exit_x - 5
@@ -38,14 +38,9 @@ function Igloo:init(from_outside)
 end
 
 function Igloo:update(dt)
-	if not self:hadCollision("closet", "Penguin") and self.ent_closet then
-		self.ent_closet:destroy()
-		self.ent_closet = nil
-	end
-
 	self.onCollision["closet"] = function(other, sep_vector)
 		if other.tag:contains("Penguin") and Input.global('confirm') then
-			if not self.ent_closet then
+			if not self.ent_closet or self.ent_closet._destroyed then
 				self.ent_closet = OutfitMenu(self.main_penguin)
 			end
 		end

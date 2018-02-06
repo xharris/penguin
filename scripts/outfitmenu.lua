@@ -16,13 +16,18 @@ end
 
 function OutfitMenu:draw()
 	if self.show_menu then
-		UI.window("label", self.x - 50, self.y + 20, 100, 100)
+		UI.window("label", self.x - 50, self.y + 20, 100, 75)
 		local status_hat, new_hat = UI.spinbox("hat", Penguin.hats, Penguin.main_penguin_info.hat)
 		if status_hat then 
 			Penguin.main_penguin_info.hat = new_hat
 			self.penguin:setHat(new_hat)
 		end
-		UI.spinbox("color", {"blue", "red"}, "blue")
+		local status_color, new_color = UI.colorpicker("color", Penguin.main_penguin_info.str_color)
+		if status_color then
+			Penguin.main_penguin_info.str_color = new_color[1]
+			Penguin.main_penguin_info.color = new_color[2]
+			self.penguin.color = new_color[2]
+		end
 		if UI.button("OK") then
 			self.show_menu = false
 			self.penguin.pause = false

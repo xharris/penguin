@@ -317,9 +317,9 @@ Entity = Class{
 			-- is it an Animation or an Image
 			if img then
 				if sprite.update ~= nil then
-					sprite:draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
+					sprite:draw(img(), math.floor(self.x+.5), math.floor(self.y+.5), math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
 				else
-					love.graphics.draw(img(), self.x, self.y, math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
+					love.graphics.draw(img(), math.floor(self.x+.5), math.floor(self.y+.5), math.rad(info.angle), info.xscale, info.yscale, -info.xoffset, -info.yoffset, info.xshear, info.yshear)
 				end
 			end
 			Draw.pop()

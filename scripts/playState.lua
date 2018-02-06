@@ -57,10 +57,6 @@ function playState:update(dt)
 		Steam.init()
 	end
 
-	if k_destruct() then
-		startDestruction()
-	end
-
 	-- enough players to start game
 	if main_penguin.x > destruct_ready_x and not in_igloo_menu then
 		if play_mode == 'online' and Net.getPopulation() >= game_start_population and not send_ready then
@@ -74,10 +70,6 @@ function playState:update(dt)
 		if play_mode == 'single' then
 			--startDestruction()
 		end
-	end
-
-	if k_leave() and Net.is_connected then
-		Net.disconnect()
 	end
 
 	-- player wants to enter igloo
@@ -96,7 +88,7 @@ function playState:update(dt)
 			end)
 		end
 
-	else
+	elseif not Net.is_connected then
 		Net.join()
 		in_igloo_menu = false
 		main_view:zoom(1)

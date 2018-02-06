@@ -22,6 +22,7 @@ function _addGameObject(type, obj)
     obj._destroyed = false
     if not obj.destroy then
     	obj.destroy = function(self)
+    		if self.onDestroy then self:onDestroy() end
 	    	self._destroyed = true
 	    	_destroyGameObject(type,self)
 	    end
@@ -104,6 +105,7 @@ BlankE = {
 	_mouse_y = 0,
 	game_canvas = nil,
 	font = love.graphics.newFont((blanke_path..'ProggySquare'):gsub('[.]','/')..'.ttf', 16),
+	draw_debug = false,
 
 	-- window scaling
 	scale_mode = 'scale',
@@ -490,7 +492,7 @@ BlankE = {
 			love.graphics.setScissor()
 		end)
 		
-		Debug.draw()
+		if BlankE.draw_debug then Debug.draw() end
 
         -- disable any scenes that aren't being actively drawn
         local active_scenes = 0

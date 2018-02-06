@@ -31,9 +31,9 @@ function Penguin:init(is_main_player)
 	}
 
 	-- INPUT
-	k_left = Input('left')
-	k_right = Input('right')
-	k_up = Input('up')
+	k_left = Input('left','a')
+	k_right = Input('right','d')
+	k_up = Input('up','w')
 
 	self.gravity = 30
 	self.can_jump = true
@@ -52,7 +52,8 @@ function Penguin:init(is_main_player)
 		local random_hat_name = table.random(Asset.list('image','hat'))
 
 		Penguin.main_penguin_info = {
-			color = hex2rgb(table.random({"#81D4FA", "#4FC3F7", "#29B6F6", "#29B6F6"})),
+			str_color = 'blue',
+			color = UI.colors['blue'][randRange(1,3)],
 			hat = "None"
 		}
 	end
